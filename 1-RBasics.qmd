@@ -27,9 +27,18 @@ Numbers can be used to do arithmetic.
 ```
 
 (@) You try, multiple two numbers. 
+```{r}
+5*55
+[1] 275
+```
 
 
 (@) Can you multiply two numbers and then divide by the result? 
+```{r}
+275/5
+[1] 55
+```
+
 
 The next type of value is a **string**. Strings are lines of text. Sometimes these are referred to as character vectors. To create a string, you add text between two quotation marks. For example: 
 ```{r}
@@ -38,7 +47,8 @@ The next type of value is a **string**. Strings are lines of text. Sometimes the
 
 (@) Try to create your own string.
 ```{r}
-
+"Medieval India"
+[1] "Medieval India"
 ```
 
 You can't add strings using `+` like you can numbers. But there is a function called `paste()` which concatenates character vectors into one. This function is _very_ useful and one you'll use a lot in a variety of circumstances. Here's what that looks like: 
@@ -49,12 +59,14 @@ paste("Hello", "Clemson Graduate Students")
 
 (@) Try it, add two strings together like the above example. 
 ```{r}
-
+paste("Coding", "is easy")
+[1] "Coding is easy"
 ```
 
 (@) Can you explain what happened in 2-3 sentences? 
-
-> 
+```{r}
+We created strings in R using quotation marks and concatenated them using the paste() function. Here, I added two strings together with paste.
+```
 
 The last type are **logical** values like `TRUE` and `FALSE`. (Note that these are all caps.)
 
@@ -93,11 +105,34 @@ Logical Operators allow you to combine or change the results of comparisons.
 3 != 4 & 3 != 5
 ```
 (@) Explain, what does the code on each line above do? 
-
->
+```{r}
+5 == 10
+[1] FALSE
+5 == 10
+[1] FALSE
+3 < 4
+[1] TRUE
+5 != 10
+[1] TRUE
+5 != 5
+[1] FALSE
+3 == 4 | 3
+[1] TRUE
+these lines of code are performing logical comparisons in R, demonstrating how equality and inequality operators work and how logical OR is interpreted when used with numeric values.
+```
 
 (@) Create your own comparison. 
 ```{r}
+3 != 4 & 3 != 5
+[1] TRUE
+(x <- 7) > 5 
+[1] TRUE
+(y <- 4) < 3
+[1] FALSE
+(z <- 6) >= 6
+[1] TRUE
+3 * 2 == 6
+[1] TRUE
 
 ```
 
@@ -134,13 +169,13 @@ Whatever you prefer, be consistent and your future self will thank you when your
 (@) You try, create a variable and assign it a number: 
 
 ```{r}
-
+ my_number <- 10
 ```
 
 (@) Can you assign a string to a variable?
 
 ```{r}
-
+> my_string <- "Hello, World!"
 ```
 
 Once we've assigned a variable we can use that variable to run calculations just like we did with raw numbers.
@@ -162,22 +197,28 @@ My.Calculation <- (x + x)*10
 
 (@) You try. Assign a number to x and a number to y. Add those two numbers together.
 ```{r}
-
+(x + y)
+[1] 11
 ```
 
 (@) Can you take `x` and `y` and multiply the result by 5? 
 ```{r}
-
+> (x + y)*5
+[1] 55
 ```
 
 (@) Try creating two variables with names other than `x ` and `y`. Descriptive names tend to be more useful. Can you multiply the contents of your variables? 
 ```{r}
-
+> first_number * second_number
+[1] 50
 ```
 
 (@) Try creating two variables that store strings. Can you concatenate those two variables together? 
 ```{r}
-
+> first_word <- "Digital"
+> second_word <- "History"
+> paste(first_word, second_word, sep="-")
+[1] "Digital-History"
 ```
 
 ### Vectors
@@ -213,6 +254,11 @@ my.numbers * 2
 (@) Explain in a few sentences, what happened in the code above?
 
 >
+```{r}
+my_number * 2 
+[1] 20
+the operation would multiply each element of the vector by 2, resulting in a new vector with doubled values: 4, 8, 12, and 16.
+```
 
 Lets try something slightly different. 
 ```{r}
@@ -221,10 +267,18 @@ my.numbers[3] * 2
 (@) Explain in a few sentences, what happened in the code above? 
 
 >
+```{r}
+my.numbers[3] * 2
+[1] 12
+The [3] indicates that we are interested in the third element of this vector.
+The third element) is then multiplied by 2.
+The result is 12.
+```
+
 
 (@) You try, create a list of five items and store it in a descriptive variable. 
 ```{r}
-
+agicalItemsList <- list("Crystal Ball", "Wizard's Wand", "Enchanted Cloak", "Potion of Wisdom", "Book of Spells")
 ```
 
 
@@ -256,7 +310,7 @@ We can ask R to pull up the documentation like this:
 
 (@) Now you try, find the documentation for the function  `signif()`.
 ```{r}
-
+signif(123.456789, digits = 3)
 ```
 
 In real life, you typically you wouldn't want to store this code in your script file. You probably don't need to pull up the documentation for the function every time you run that piece of code. But for the purposes of this worksheet we're adding it to our `.Rmd` document. 
@@ -264,6 +318,11 @@ In real life, you typically you wouldn't want to store this code in your script 
 (@) Use the console to find the documentation for `floor()`? Try it and then tell me, what does that function do? 
 
 >
+```{r}
+The floor() function in R is used to round down numerical values to the nearest integer.
+floor(3.8)
+floor(0.0001)
+```
 
 ### Data Frames & Packages
 
@@ -302,6 +361,15 @@ What is going on here? Each line within this function (x,y,z) creates a new colu
 (@) What is going on in row z? Can you explain the logic here?
 
 >
+```{r}
+Since x ranges from 1 to 5 and y is always 1, the calculation for each row in z will be as follows:
+For the first row: z = 1 * 2 + 1 = 3
+For the second row: z = 2 * 2 + 1 = 5
+For the third row: z = 3 * 2 + 1 = 7
+For the fourth row: z = 4 * 2 + 1 = 9
+For the fifth row: z = 5 * 2 + 1 = 11
+
+```
 
 
 ## Loading Dataframes from Packages
@@ -341,17 +409,84 @@ That gives us the first 6 rows of data. Its really useful if you just want to pe
 
 (@) The default is to print six rows of data. Can you modify the above code to print out the first 10 rows? 
 ```{r}
+> help(package="DigitalMethodsData")
+> head(gayguides, 10)
+X   ID        title                        description streetaddress           type
+1   1 3213       'B.A.'                    (woods & ponds)               Cruising Areas
+2   2 2265 'B.A.' Beach                           2 mi. E.        Rte. 2 Cruising Areas
+3   3 3269 'B.A.' Beach                 nr. Salt Air Beach               Cruising Areas
+4   4 3388 'B.A.' Beach      nr. Evergreen Floating Bridge               Cruising Areas
+5   5 3508 'B.A.' Beach               (2 mi. E. on Rte. 2)               Cruising Areas
+6   6 5116 'B.A.' Beach      nr. Evergreen Floating Bridge               Cruising Areas
+7   7  780 'B.A.' Beach on Russian River, at Wohler Bridge               Cruising Areas
+8   8 3810 'B.A.' Beach                           2 mi. E.        Rte. 2 Cruising Areas
+9   9 4979 'B.A.' Beach                 nr. Salt Air Beach               Cruising Areas
+10 10 5191 'B.A.' Beach      nr. Evergreen Floating Bridge               Cruising Areas
+amenityfeatures           city state Year notes      lat        lon
+1      Cruisy Area    Lake Placid    NY 1982       44.27949  -73.97987
+2      Cruisy Area           Troy    NY 1981       42.72841  -73.69178
+3      Cruisy Area Salt Lake City    UT 1981       40.74781 -112.18727
+4      Cruisy Area        Seattle    WA 1981       47.60621 -122.33207
+5      Cruisy Area           Troy    NY 1982       42.72841  -73.69178
+6      Cruisy Area        Seattle    WA 1983       47.60621 -122.33207
+7      Cruisy Area  Russian River    CA 1983       38.91163 -123.01105
+8      Cruisy Area           Troy    NY 1983       42.72841  -73.69178
+9      Cruisy Area Salt Lake City    UT 1983       40.74781 -112.18727
+10     Cruisy Area        Seattle    WA 1984       47.60621 -122.33207
+status
+1  Location could not be verified. General city or location coordinates used.
+2  Location could not be verified. General city or location coordinates used.
+3  Location could not be verified. General city or location coordinates used.
+4  Location could not be verified. General city or location coordinates used.
+5  Location could not be verified. General city or location coordinates used.
+6  Location could not be verified. General city or location coordinates used.
+7  Location could not be verified. General city or location coordinates used.
+8  Location could not be verified. General city or location coordinates used.
+9  Location could not be verified. General city or location coordinates used.
+10 Location could not be verified. General city or location coordinates used.
 
 ```
 
 (@) Can you find the last 6 rows of data? 
 ```{r}
-
+tail(gayguides, 6)
+X    ID           title               description streetaddress       type
+60693 60693 PR351       Boccachio            (Natives only)               Bars/Clubs
+60694 60694 PR366       Boccachio            (Natives only)               Bars/Clubs
+60695 60695 PR377       Boccachio            (Natives only)               Bars/Clubs
+60696 60696 GU002   Mi Elena Club (Inquire locally) (Agana)          <NA> Bars/Clubs
+60697 60697 GU015 Star Cafe & Bar Downtown, opp. Agana Loop          <NA> Bars/Clubs
+60698 60698 GU019 Star Cafe & Bar Downtown, opp. Agana Loop          <NA> Bars/Clubs
+amenityfeatures
+60693                                                                                     (G),(*)
+60694                                                                                         (G)
+60695                                                                                         (L)
+60696                                                         (M) - Mixed Crowds - Some Straights
+60697 (M) - Mixed Crowds - Some Straights,(YC) - Young and/or collegiate types,(*) - Very popular
+60698 (M) - Mixed Crowds - Some Straights,(YC) - Young and/or collegiate types,(*) - Very popular
+city state Year notes      lat       lon
+60693 Hato Ray    PR 1977       18.42258 -66.05096
+60694 Hato Ray    PR 1979       18.42258 -66.05096
+60695 Hato Ray    PR 1980       18.42258 -66.05096
+60696    Agana    GU 1980  <NA> 13.47628 144.75022
+60697    Agana    GU 1975  <NA> 13.47628 144.75022
+60698    Agana    GU 1974  <NA> 13.47628 144.75022
+status
+60693 Location could not be verified. General city or location coordinates used.
+60694 Location could not be verified. General city or location coordinates used.
+60695 Location could not be verified. General city or location coordinates used.
+60696 Location could not be verified. General city or location coordinates used.
+60697 Location could not be verified. General city or location coordinates used.
+60698 Location could not be verified. General city or location coordinates used.
 ```
 
 (@) Reflect on the previous two prompts. How did you figure these out? 
 
 >
+```{r}
+The key to figuring these out lies in understanding what the head() and tail() functions do in R. head() is used to display the first few rows of a dataset, and tail() for the last few rows.
+
+```
 
 The `str()` function is another very useful function for understanding a dataset. It compactly displays the internal structure of an R object. 
 ```{r}
@@ -371,30 +506,88 @@ gayguides$title[500]
 (@) Break this down. Whats going on here? What do each of the elements of this code mean? (gayguides, $, title, and [500]) 
 
 >
+```{r}
+gayguides$title[500] extracts the 500th title from the title column in the gayguides data frame. 
+```
 
 (@) The Year variable contains the year (numeric) of each entry. Can you find the earliest year in this dataset? (Using code, don't cheat and use the documentation!)
 ```{r}
-
+min(gayguides$Year, na.rm = TRUE)
+[1] 1965
 ```
 
 
 (@) How about the latest year? 
 ```{r}
-
+max(gayguides$Year, na.rm = TRUE)
+[1] 1985
 ```
 
 
 (@) Add another dataset from `DigitalMethodsData`. How many observations are included in this dataset? Run through some of the examples from above to learn about the dataset.
 ```{r}
-
+help(package="DigitalMethodsData")
+> data("almshouse_admissions")
+> head(almshouse_admissions, 10)
+Last.Name First.Name Year.Admitted Month.Admitted Gender Descriptions.by.Clerk
+1      ABBOT     ROSINA          1803              7      1                    10
+2       ABEL       JANE          1801              1      1                    50
+3       ABEL       MARY          1801              1      1                     6
+4   ABERVINE       JOHN          1800             12      0                     3
+5   ACHILLER      KITTY          1802              1      1                     6
+6       ADAM     HANNAH          1801              8      1                     0
+7      ADAMS        ANN          1803              3      1                     5
+8      ADAMS   ANN MARY          1803              3      1                     6
+9      ADAMS    FRANCIS          1803             11      0                     6
+10     ADAMS      JACOB          1800             11      0                     2
+Reason.Discharged YearDischarged MonthDischarged
+1                  2           1804               1
+2                  4           1801               8
+3                  3           1801               6
+4                  1           1801               2
+5                  3           1802               1
+6                  1           1802               5
+7                  1           1803               5
+8                  1           1803               5
+9                  3           1803              12
+10                 1           1801               4
+> tail(almshouse_admissions, 6)
+Last.Name First.Name Year.Admitted Month.Admitted Gender Descriptions.by.Clerk
+1395       NEGRO       ADAM          1802              5      0                     1
+1396       NEGRO       AMBO          1802              5      1                     1
+1397   black boy      BANAM          1803              1      0                    52
+1398   black boy      BANAM          1803              1      0                     1
+1399 black child    CHARLES          1801              3      0                    52
+1400     mullato       CATO          1800              7      0                    19
+Reason.Discharged YearDischarged MonthDischarged
+1395                 2           1802               7
+1396                 2           1802               5
+1397                 3           1803               1
+1398                 4           1803               1
+1399                 0              1               0
+1400                 1           1804               1
 ```
 
 (@) What did you learn about the dataset? What can you tell me about it? 
-
->
-
-
-
+```{r}
+After running these commands, I learnt about dataset, such as the number of observations, the types of variables it contains, and a glimpse of the data. This information helped me understand the nature of the dataset, what kind of information it contains, and potentially how it can be used for research. I also learnt about so many features of R.
+```
 
 CONGRATS! You've completed your first worksheet for Digital Methods II. That wasn't so bad, right? 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
