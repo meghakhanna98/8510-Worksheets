@@ -40,7 +40,8 @@ x[c(3,3)]
 ```
 (@) Create your own vector and return three values using the subsetting method above. 
 ```{r}
-
+y <- c(10, 20, 30, 40, 50, 60)
+y[c(2, 4, 6)]
 ```
 
 
@@ -51,7 +52,12 @@ x[-c(3, 1)]
 
 (@) What happened here? Describe this in your own words. 
 
->
+```{r}
+x[-c(3, 1)]
+```
+```{r}
+When we use negative integers, we are removing the numbers in those specific places. Like in this case, The negative signs before 3 and 1 are what indicates R to remove these elements rather than select them. This way, we can easily manipulate vectors to include only the data that interests us.
+```
 
 You can use either positive or negative integers to subset a vector but you **cannot mix the two**.
 
@@ -67,8 +73,10 @@ x[x > 7]
 ```
 
 (@) What is going on in each of the lines above? Describe it in your own words. 
-
->
+```{r}
+In [c(TRUE, FALSE, TRUE, TRUE, FALSE)], a logical vector containing TRUE and FALSE values is used to subset the vector x. R includes the elements of x where the corresponding logical value is TRUE and excludes those where it is FALSE. What I am not able to understand is that since there are 7 elements in x, why does it shows TRUE or FALSE for only 5 values.
+[x > 7] creates a logical vector where each element is TRUE only if the particular item of x is greater than 7, and FALSE otherwise. So, from the values of x, that are 15.4, 25, 2, 8.35, 5, 383, 10.2, only  numbers greater than 7 would come out as TRUE and the smallers ones as FALSE. This helps to filter data . 
+```
 
 Nothing returns the original vector. This isn't that useful here but can come in handy when you have more complex structures like matrices and arrays. 
 ```{r}
@@ -81,6 +89,11 @@ If your vector is named, you can also use character vectors to return elements w
 y[c("d")]
 ```
 (@) What happened here? Explain this in your own words. 
+```{r}
+When we use empty brackets after a vector name, like x[], it's a method to incude everything that vector contains. This doesn't change or filter the vector in any way; it simply returns the vector as it is, like - x[]
+[1]  15.40  25.00   2.00   8.35   5.00 383.00  10.20. 
+In the second code, First, setNames(x, letters[1:4]) assigns names to the elements of vector x.  This turns x into a named vector, where each element can be referenced by its name (in this case, "a", "b", "c", and "d"). (now y), y[c("d")] is used to access the element of y that has the name "d". 
+```
 
 #### Matrices
 
@@ -97,12 +110,14 @@ In the `matrix()` function:
 
 (@) You try now, create a matrix that had five rows with numbers that range from 25 to 49. 
 ```{r}
+matrix(25:49, byrow = TRUE, nrow = 5)
 
 ```
 
 (@) Can you create a matrix that has 3 rows with only even numbers from 2 to 18? 
 ```{r}
-
+matrix(seq(from = 2, to = 18, by = 2), byrow = TRUE, nrow = 3)
+    
 ```
 
 ##### Subsetting Matricies 
@@ -151,23 +166,29 @@ gayguides[1:3,]
 ```
 
 (@) Why is this different? What do we get compared to the previous example? 
-
->
+```{r}
+gayguides[2:3] specifically targets columns, resulting in a subset containing all rows but only columns 2 and 3. Columns named 'ID' and 'title' in this case would be shown.
+gayguides[1:3,], on the other hand, retrieves a specific section of rows (the first through third) across all columns. That are columns named 'X', 'ID' and 'title'.
+```
 
 (@) Can you find just the city and state for the first 5 entries? 
 ```{r}
+library(DigitalMethodsData)
+data("gayguides")
+gayguides[1:5, c(8,9)]
 
 ```
 
 (@) How about the street address and type for rows 2,555 to 2,560?
 
 ```{r}
-
+gayguides[2555:2560, c(5,6)]
 ```
 
 (@) Load another dataset from `DigitalMethodsData`. Subset it to find some element of the data. Write the code below and then explain what element of the data you wanted to subset and why:
 ```{r}
-
+BostonWomenVoters[50 :60, c(5,12)]
+ 
 ```
 
 > 
@@ -186,9 +207,12 @@ gayguides$city[100:110]
 ```
 
 (@) What does this code do? 
+```{r}
 
->
-
+$ symbol is used to access a specific column within a dataframe. It allows us to mention the name of the column we want to work with directly.
+city is the name of the column being accessed within the gayguides dataframe. 
+[100:110] is indexing command is used to subset the data, specifying that only the entries from row 100 to row 110 of the specified column (city) should be returned. This range means that the command will output the city names for entries 100 through 110 in the gayguides dataframe.
+```
 
 We can also use `$` to create a new column in `gayguides`. 
 ```{r}
@@ -250,23 +274,44 @@ if (x > 90) {
 
 (@) You are teaching History 100 for Clemson. Write an `if` statement that calculates whether the enrollment cap of 30 on your class has been met. 
 ```{r}
+current_enrollment <- 28
 
+if (current_enrollment >= 30) {
+   print("The enrollment cap of 30 has been met.")
+} else {
+  print("There are still spaces available in the class.")
+}
 ```
 
 (@) Create a list of presidents and store it in a variable. Use an `if` statement to check if the number of presidents in the list is more than 5. If its not indicate that too. 
 ```{r}
+presidents <- c("George Washington", "John Adams", "Thomas Jefferson", "James Madison", "James Monroe", "John Quincy Adams")
+
+if (length(presidents) > 5) {
+   print("The list contains more than 5 presidents.")
+} else {
+   print("The list does not contain more than 5 presidents.")
+}
 
 ```
 
 (@) You can also use an if statement to check a variable in a dataframe. How might you use an if statement to check if the GayGuides dataset contains any year after 1990? (Hint: first try to figure out how to determine the latest year in the dataframe and then build an if statement that checks that and prints something out if its true or false. You should think about what kind of value in contained in the Year column, how to access it, and how to check for the latest value.) 
 
 ```{r}
+library(DigitalMethodsData)
+data("gayguides")
+latest_year <- max(gayguides$Year, na.rm = TRUE)
+ if (latest_year > 1990) {
+   print("The GayGuides dataset contains entries from after 1990.")
+ } else {
+    print("The GayGuides dataset does not contain entries from after 1990.")
+ }
 ```
 
 (@) Reflect on the question above. How did you figure this out? What was the process you went through to build this chunk of code?
-
-> 
-
+```{r}
+To understand and make this code, firstly I needed access to the "gayguides" dataset. After that,I used max(gayguides$Year, na.rm = TRUE, to access the year column from the dataset, while the max helped in getting the latest year, with na.rm made sure that all years with missing or NA values are ignored. The 'if' statement was to check if latest_year is greater than 1990. If true, it indicates that there are entries after 1990 in the dataset. If false, it indicates there are no entries after 1990. I was not able to understand why latest_year's value shows 1985L.
+```
 #### Loops
 
 A **loop* is used to iterate over items in a vector. They typically follow this form:
@@ -296,13 +341,17 @@ for (p in 1:length(presidents)) {
 ```
 
 (@) Why does this work? What does `length()` do and why do we use it on `presidents`?
+```{r}
+What length() does is that it denotes and writes the number of elements contained in a vector. Here,  when we apply length() to the presidents vector, it would return the number of elements contained within it, which, in this case, is 3 since the presidents vector contains three names. What I learnt, it determines the range of the loop. It creates a sequence from 1 to the length of the presidents vector.
+```
 
-> 
-
-Create a character vector that contains the title of each of your classes this semester. Can you write a `for` loop that prints out "I am enrolled in" and the name of each of your classes? ("I am enrolled in History 8150", "I am enrolled in History 8000".....etc). Hint: you'll need a function to combine the output and some text of your choosing inside the function. 
+(@) Create a character vector that contains the title of each of your classes this semester. Can you write a `for` loop that prints out "I am enrolled in" and the name of each of your classes? ("I am enrolled in History 8150", "I am enrolled in History 8000".....etc). Hint: you'll need a function to combine the output and some text of your choosing inside the function. 
 
 ```{r}
-
+classes <- c("History 8510", "History 8520", "History 6930")
+for (class in classes) {
+   print(paste("I am enrolled in", class))
+}
 ```
 
 Sometimes we want our loop to terminate itself early. There are two statements that help us do that: 
@@ -333,18 +382,35 @@ for (i in 1:10) {
 ```
 
 (@) What happened here? Why did the loop only print 3 and 4? 
+```{r}
+If we break the equaton, it starts with i which equals to 1 and can run through numbers from 1 to 10. When i is less than 3 (ie, for i equal to 1 and 2), the next statement is executed. The numbers 1 and 2 are not printed because the command print(i) is skipped for them. Once i reaches 5, the break statement is executed. Given the conditions, only the numbers 3 and 4 are able to get through and meet the criteria to be printed. The next statement filters out numbers 1 and 2 from being printed, and the break statement terminates the loop before it can print numbers 5 through 10. 
+```
 
 
 (@) In the state population data, can you write a loop that pulls only states with populations between 200,000 and 250,000 in 1800? You could accomplish this a few different ways. Try to use next and break statements. 
 ```{r}
-
+for (i in 1:nrow(statepopulation)) {
+    population <- statepopulation$Population_1800[i]
+    if (population < 200000 | population > 250000) {
+        next
+    }
+    print(statepopulation$State[i])
+}
 ```
 
 (@) What if we wanted to loop through the gay guides data? Can you write a loop that iterates through the cities in the Gay Guides data and returns the title of any location in Greenville? 
 ```{r}
-
+library(DigitalMethodsData)
+data("gayguides")
+for (i in 1:nrow(gayguides)) {
+   if (gayguides$city[i] == "Greenville") {
+     print(gayguides$title[i])
+   }
+}
 ```
 
+
+```{r}
 `while` is another useful tool for writing loops. While will run a loop _while_ a condition is true. Once that condition is not true, it exits. For example: 
 ```{r}
 i <- 1
@@ -353,6 +419,9 @@ while (i < 6) {
   i <- i+1
 }
 ```
+
+
+```{r}
 Its important to note here that `i` is defined outside the loop. Its initial value is 1 but each time the loop runs it gets 1 added to it. So the first time it runs, i = 1 and the loop prints the value then adds 1 to i. Now i = 2 but since that is still less than 6 the loop continues and prints the value then adds 1 to i. Eventually, i=6 and since 6 is not less than 6 the loop exits without printing. 
 
 `While` doesn't get used as often in R because there is often a more efficient way to do the same thing. But in other languages `while` gets used much more often. Its a good pattern to be familiar with even if you don't use in frequently in R. 
@@ -388,7 +457,9 @@ historyStudents <- function(studentname, class) {
 ```
 (@) Can you run this function? 
 ```{r}
+To run the historyStudents function,we first need to define the function in an R environment. The function, as provided, takes two arguments: studentname and class. 
 
+But it could also be becuse sep="" in the paste function is misspelled as sept="", which could cause an error when running this function. 
 ```
 
 
@@ -401,12 +472,17 @@ There are several components to a function.
 
 (@) Write a function that takes a string of text and counts the number of characters. The function should return "There are xx characters in that string." 
 ```{r}
-
+Characters <- function(text) {
+  charCount <- nchar(text, type = "chars", allowNA = FALSE, keepNA = NA)
+  return(paste("There are xx", charCount, "characters in that string."))
+}
 ```
 
 (@) Reflect on the process of building the above function. How did you go about figuring this out? 
+```{r}
+R provides a built-in function nchar() that helped me count the number of characters in a string. The next step was to structure this functionality into a custom function that takes a string as input and returns the desired message. The steps were straightforward: defining the function, utilizing nchar() to get the character count, and then formatting the output as requested.
+```
 
->
 
 The body of a functions can use any of the techniques we've learned in this worksheet like loops and if statements. For example: 
 ```{r}
@@ -432,10 +508,13 @@ grade(75)
 (@) In the example below, why doesn't George Washington's grade get printed out? 
 ```{r}
 GeorgeWashington <- grade(60)
+Regarding why George Washington's grade doesn't get printed out, I think it is because the grade is assigned to the variable GeorgeWashington but not explicitly printed.  
 ```
 
->
-
+```{r}
+GeorgeWashington <- grade(60)
+print(GeorgeWashington)
+```
 
 Here's a more complex example: 
 ```{r}
@@ -454,12 +533,24 @@ gg.locations <- function (city, year) {
 
 (@) Write a function that uses the things you've learned in this worksheet. The function should accept two arguments, city and year. It should pull all the locations in that city and year and return a statement that says "Found a location called xxx". (Where x is the title of a location in that year and city.) 
 ```{r}
-
+findLocations <- function(city, year) {
+  matches <- gayguides[gayguides$city == city & gayguides$year == year, ]
+  if (nrow(matches) > 0) {
+    for (i in seq_along(matches$title)) {
+      print(paste("Found a location called xxx", matches$title[i]))
+    }
+  } else {
+    print("No locations found for the specified city and year.")
+  }
+  
 ```
 
 (@) Use the Boston Women Voter dataset. Write a function that accepts the name of an occupation. Your function should return new dataframe that includes the records for every voter listed with that occupation.  
 ```{r}
-
+filterByOccupation <- function(occupation) {
+  filteredData <- BostonWomenVoter[BostonWomenVoter$occupation == occupation, ]
+  return(filteredData)
+}
 
 ```
 
