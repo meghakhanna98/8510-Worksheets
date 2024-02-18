@@ -1,6 +1,6 @@
 ---
 title: 'Worksheet 3: Data Manipulation'
-author: "your name here"
+author: "Megha Khanna"
 date: "2023-02-14"
 ---
 _Before you begin this worksheet this week, please reinstall `DigitalMethodsData` from GitHub by running: `devtools::install_github("regan008/DigitalMethodsData")` in your console. Also be sure that you have installed the Tidyverse library._
@@ -38,16 +38,27 @@ Notice that this subsetted the data and returned only the title and year. Howeve
 
 (@) Use `select()` to take the city and state from gayguides and add them to a dataframe called "locations". 
 ```{r}
-
+gayguides %>%
+  select(city, state)
+locations <- select(gayguides, city, state)
 ```
 
 (@) What did you do to save the data to a new data frame? Why? 
 
->
+> As studied earlier, I firstly loaded the dplyr library, which is a part of the tidyverse packages in R.. Then I used the 'select()' function to choose the city and state columns from the gayguides dataframe. Then, I assigned the result to a new dataframe called locations.
 
 (@) Can you use `select()` to grab all the columns of `gayguides` EXCEPT for the city and state? Hint: You might want to read the documentation for this function. 
 ```{r}
-
+library(dplyr)
+locations_except_city_state <- select(gayguides, -city, -state)
+head(locations_except_city_state)
+```
+There is another method that I tried learning and using for this question
+```{r}
+locations_without_city_state <- select(gayguides, -city, -state)
+locations_without_city_state$city <- NULL
+locations_without_city_state$state <- NULL
+head(locations_without_city_state)
 ```
 
 ### Filter
@@ -75,30 +86,53 @@ gayguides %>%
 (@) The above code grabs every location where the city is Greenville. However, there is more than one city named Greenville. Can you filter to retrieve Greenville, SC? 
 
 ```{r}
-
+library(dplyr)
+greenville_sc <- gayguides %>%
+  filter(city == "Greenville" & state == "SC")
+head(greenville_sc)
 ```
 
 (@) How about every location between 1975 and 1980? 
 
 ```{r}
-
+library(dplyr)
+locations_1975_to_1980 <- gayguides %>%
+  filter(Year >= 1975 & Year <= 1980)
+head(locations_1975_to_1980)
 ```
 
 
 (@) Every entry in Greenville, SC between 1975 and 1980? 
 
 ```{r}
-
+library(dplyr)
+greenville_sc_1975_to_1980 <- gayguides %>%
+  filter(city == "Greenville" , state == "SC" , Year >= 1975 , Year <= 1980)
+head(greenville_sc_1975_to_1980)
 ```
 
 (@) Can you find all locations in 1975 except for New York and San Francisco? 
 ```{r}
-
+library(dplyr)
+locations_1975_not_ny_sf <- subset(gayguides, Year == 1975)
+locations_1975_not_ny_sf <- subset(gayguides, state != "NY")
+locations_1975_not_ny_sf <- subset(gayguides, city != "San Francisco")
+head(locations_1975_not_ny_sf)
 ```
 
 (@) The amenity features column in gay guides contains a comma separated list of categorizations. (G), for example, stands for girls. However, this language changed over time and women's locations eventually are described as (L). What if we want to filter by any entry that has (G) OR (L) in the amenity feature column?  This is a bit more complicated because the entries are a comma separated list and (G) or (L) is often paired with other categorizations. How might you _search the dataframe for entries that match_ (G) or (L)?
 ```{r}
-
+library(dplyr)
+library(stringr)
+entries_with_g_or_l <- gayguides %>%
+  filter(str_detect(amenityfeatures, "\\(G\\)") | str_detect(amenityfeatures, "\\(L\\)"))
+head(entries_with_g_or_l)
+```
+or we can also use a subset method to find out.
+```{r}
+list_with_g_or_l <- subset(gayguides, grepl("\\(G\\)", amenityfeatures)) 
+list_with_g_or_l <- subset(gayguides, grepl("\\(L\\)", amenityfeatures))
+head(list_with_g_or_l)
 ```
 
 ### Mutate
@@ -112,13 +146,20 @@ statepopulations %>% mutate(difference = X1900 - X1800)
 
 (@) In the Boston Women Voters dataset, every voter is given an age. Can you use their age to calculate each person's birth year? (Assume all this data was collected in 1920.)
 ```{r}
-
+library(DigitalMethodsData)
+data("BostonWomenVoters")
+Boston_women_voters <- BostonWomenVoters %>%
+  mutate(birth_year = 1920 - Age)
+head(Boston_women_voters)
 ```
 
 (@) Can you create a new column that combines the city and state columns in `gayguides` into a new column called location? It should list the city, state. (i.e. San Diego, CA)
 
 ```{r}
-
+library(dplyr)
+gayguides <- gayguides %>%
+  mutate(location = paste(city, state, sep = ", "))
+head(gayguides)
 ```
 
 ### Arrange
@@ -137,7 +178,14 @@ gayguides %>%
 
 (@) Using the `statepopulation` data, which state has the largest population in 1850? Write code that pulls only the relevant columns (state and 1850) and sorts it accordingly. 
 ```{r}
-
+library(DigitalMethodsData)
+data("statepopulations")
+library(dplyr)
+state_with_largest_population_1850 <- statepopulations %>%
+  arrange(desc(X1850)) %>%
+  slice(1) %>%
+  select(STATE, X1850)
+head(state_with_largest_population_1850)
 ```
 
 ### Group_by() and Summarize()
@@ -160,22 +208,49 @@ What happened here? In this example, we asked group_by to create groups based on
 
 (@) You try, use group_by and summarize to find the total number of locations in each state, each year.
 ```{r}
-
+library(dplyr)
+locations_by_state_year <- gayguides %>%
+  group_by(state, Year) %>%
+  summarize(total_locations = n(), .groups = 'drop')
+print(locations_by_state_year)
 ```
+I read on google that when we type groups = 'drop' argument in summarize(), this returns the result as an ungrouped dataframe, which is useful for further manipulations or analyses without the grouping structure.
 
 (@) Summarize can do more than just count rows. Can you use `summarize()` to find the average age for each occupation in the Boston Women Voters data?
 ```{r}
+library(DigitalMethodsData)
+data("BostonWomenVoters")
+library(dplyr)
+average_age_by_occupation <- BostonWomenVoters %>%
+  group_by(Occupation) %>%
+  summarize(average_age = mean(Age, na.rm = TRUE), .groups = 'drop')
+print(average_age_by_occupation)
 
 ```
 
 (@) In the `gayguides` data, on average how many locations did each city in South Carolina have between 1970 and 1975?
 ```{r}
+library(DigitalMethodsData)
+data("gayguides")
+library(dplyr)
+average_locations_per_city <- gayguides %>%
+   filter(state == "SC" & Year >= 1970 & Year <= 1975) %>%
+  group_by(city) %>%
+  summarize(total_locations = n(), .groups = 'drop') %>%
+  summarise(average_locations = mean(total_locations))
+print(average_locations_per_city)
 
 ```
 
 (@) Filter the dataset for only the values in the southernstates list (created in the block below). Then tell me, how many locations were in all the southern states in 1975?
 ```{r}
 southernstates <- c("AL", "AR", "FL", "GA", "KY", "LA", "MD", "MS", "NC", "SC", "TN", "TX", "VI", "WV")
+
+locations_southern_states_1975 <- gayguides %>%
+  filter(state %in% southernstates & Year == 1975) %>%
+  summarise(total_locations = n())
+
+print(locations_southern_states_1975)
 
 ```
 
@@ -203,13 +278,50 @@ head(almshouse_admissions)
 (@) Below I've downloaded data about each of the census regions. Join this dataset with `gayguides`. Create a data frame that includes each of the regions and the total number of locations in 1980. How many locations appear in the Mountain region in 1980?
 ```{r}
 regions <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/censusregions.csv")
+
+library(dplyr)
+library(DigitalMethodsData)
+data("gayguides")
+regions <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/censusregions.csv")
+
+joined_data <- inner_join(gayguides, regions, by = state)
+
+locations_by_region_1980 <- joined_data %>%
+  filter(Year == 1980) %>%
+  group_by(Region) %>%
+  summarise(total_locations = n())
+
+mountain_region_1980 <- filter(locations_by_region_1980, Region == "Mountain")
+print(mountain_region_1980)
+  
 ```
 
 (@) Explain what you did above. What variable did you join by and why? What results?
 
+Though I was not really successful in getting this code right, I attempted to join the two datasets- gayguides and regions. The code 'regions <- read.csv' is supposed to read the regions dataset from an CSV file into R. 'library(dplyr)' loads the dplyr package, which provides functions for data manipulation. The 'inner_join' function is supposed to merge gayguides with regions. The 'by = state' argument was intending that the datasets should be joined based on a common column named state in both datasets.The 'filter' function is used to keep only the records from the year 1980, and then 'group_by' is used to organize the data by the Region column. Finally, 'summarise' is used to count the total number of locations in each region for that year.The code then 'filters locations_by_region_1980' to only include the "Mountain" region.But clearly, I have made some faults in understanding as it shows errors.
+
 (@)How much did LGTBQ life grow between 1970 and 1980? Can you create a data frame that computes the growth in the number of locations between 1970 and 1980 for every state? For every region? 
 ```{r}
+library(dplyr)
+library(DigitalMethodsData)
+data("gayguides")
 
+summary_1970 <- gayguides %>%
+  filter(Year == 1970) %>%
+  summarise(total_locations_1970 = n())
+summary_1980 <- gayguides %>%
+  filter(Year == 1980) %>%
+  summarise(total_locations_1980 = n())
+
+lgbtq_growth <- data.frame(
+  Year = c(1970, 1980),
+  Total_Locations = c(summary_1970$total_locations_1970, summary_1980$total_locations_1980)
+)
+
+lgbtq_growth <- lgbtq_growth %>%
+  mutate(Growth = Total_Locations - lag(Total_Locations))
+
+print(lgbtq_growth)
 ```
 
 
@@ -228,11 +340,24 @@ sc.parks <- sc.parks %>%
 ```
 
 (@) What did this code do? 
->
+
+I think that the code is intended to transform a dataset from a wide format to a long format using the pivot_longer function from the tidyr package. '!city:type_of_worker' is intended to select all columns for pivoting except those from 'city' to 'type_of_worker'. The ! symbol is used to exclude columns. 'names_to = "year"' tells pivot_longer to create a new column named 'year' that will contain the names of the columns that were pivoted.'values_to = "count"' specifies that the values from the pivoted columns will be placed in a new column named 'count'. However, while running this code, it shows error.
 
 (@) Here's another wide data frame. Can you turn this from a wide to a narrow data frame? 
 ```{r}
 rec.spaces <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/PlayAreabyType.csv")
+
+library(tidyr)
+
+rec.spaces <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/PlayAreabyType.csv")
+rec.spaces_long <- rec.spaces %>%
+  pivot_longer(
+     cols = -type, 
+     names_to = "year",
+     values_to = "count"
+  )
+
+head(rec.spaces_long)
 ```
 
 The opposite of `pivot_longer()` is `pivot_wider()`. It "widens" data by increasing the number of columns and decreasing the number of rows. We can revert `sc.parks` back to a wide dataset using this function.
@@ -243,12 +368,17 @@ sc.parks %>%
 
 (@) Widen the `sc.parks` dataset so that the column names are drawn from the type of recreation worker.
 ```{r}
-
+sc.parks_wide <- sc.parks %>%
+  pivot_wider(names_from = type_of_worker, values_from = count)
+head(sc.parks_wide)
 ```
 
 (@) Turn `rec.spaces` into a wide dataframe. 
-```{r}
 
+```{r}
+rec.spaces_wide <- rec.spaces_long %>%
+  pivot_wider(names_from = year, values_from = count)
+head(rec.spaces_wide)
 ```
 
 
@@ -263,27 +393,49 @@ gayguides %>%
 The implicit question was, "How many locations appear in each year?". The `judges` dataset in provided in the DigitalMethodsData package is a large, messy, wide dataframe that contains a lot of information. Look at this dataframe and then compose a question to ask of the data.
 
 (@) First, tell me, what is the question you are asking? 
-```{r}
 
-```
+What is the gender diversity among judges in different racial or ethnic categories?
 
 (@) Now write some code to address that question. Comment the code with notes that explain your thinking as you go. Use functions like select(), filter(), etc to pair down your dataset and reshape it to address your question. 
 ```{r}
+library(DigitalMethodsData)
+data("judges")
 
+judges_diversity <- judges %>%
+   select(Race.or.Ethnicity, Gender) %>%
+   group_by(Race.or.Ethnicity, Gender) %>%
+   summarize(count = n(), .groups = 'drop')
+print(judges_diversity)
 ```
 
 (@) Now ask a question of the `gayguides` data (or another dataset of your choice). What is the question you are asking? 
-```{r}
 
-```
+How do the types of amenities featured in LGBTQ+ venues vary across different states?
 
 (@) Now write some code to address that question. Comment the code with notes that explain your thinking as you go. Use functions like select(), filter(), etc to pair down your dataset and reshape it to address your question. 
 ```{r}
+library(DigitalMethodsData)
+library(tidyr)
+library(dplyr)
+data("gayguides")
 
+amenity_analysis <- gayguides %>%
+  select(title, amenityfeatures, type, state) %>%
+  separate_rows(amenityfeatures, sep = ",") %>%
+   group_by(state, type, amenityfeatures) %>%
+  summarize(count = n(), .groups = 'drop') %>%
+   arrange(state, type, desc(count))
+print(amenity_analysis)
 ```
 
 (@) Write a function that filters the gay guides dataset. It should accept 2 arguments: year and state. When passed to the function the function should return only the title, type, state and year for each entry. 
 ```{r}
-
+filter_gayguides <- function(year, state) {
+  gayguides %>%
+    filter(Year == year, state == state) %>%
+    select(title, type, state, Year)
+}
+filtered_guides <- filter_gayguides(1982, WA)
+print(filtered_guides)
 ```
 
