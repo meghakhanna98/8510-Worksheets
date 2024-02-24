@@ -1,7 +1,7 @@
 ---
 title: 'Worksheet 4: Data Visualization'
-author: ''
-date: ''
+author: 'Megha Khanna'
+date: '02/23/2024'
 ---
 
 _This is the fourth in a series of worksheets for History 8510 at Clemson University. The goal of these worksheets is simple: practice, practice, practice. The worksheet introduces concepts and techniques and includes prompts for you to practice in this interactive document. When you are finished, you should change the author name (above), knit your document, and upload it to canvas. Don't forget to commit your changes as you go and push to github when you finish the worksheet._
@@ -36,7 +36,7 @@ data(gapminder)
 
 (@) Take a look at the data. What can you say about it? 
 
-> 
+> According to what I can observe, the dataset consists of 1,704 observations (rows) and 6 columns: country, continent, year, Life expectancy, population, and GDP per capita. When I googled the other abbreviations, it says (<fct>) is factors denoted to country and continent which indicates categorical data. The year is an integer (<int>), while lifeExp (life expectancy), pop (population), and gdpPercap (GDP per capita) are numeric (<dbl>), with lifeExp and gdpPercap being double-precision floating-point numbers.
 
 This data includes variables for life exptenency and per capita GDP. Lets say we want to plot these two variables against each other for all country-years within the dataset. First we have to tell `ggplot()` what our data is. 
 ```{r}
@@ -64,6 +64,9 @@ To summarize what we did above, there were 3 steps we went through. First, tell 
 
 (@) Modify the above plot so that the variables it draws on are life expectancy and population. Then, use a comment to annotate the code and mark each of the 3 parts described above.
 ```{r}
+p <- ggplot(data = gapminder, mapping = aes(x = lifeExp, y = pop))
+p + geom_point()
+p + geom_point() + labs(title = "Life Expectancy vs. Population", x = "Life Expectancy", y = "Population")
 
 ```
 
@@ -75,13 +78,19 @@ ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp, color=year)) + 
 
 (@) Using the same plot above, can you edit the code to add a trend line? (Hint: You'll need to add another geom)
 ```{r}
-
+ggplot(data = gapminder, mapping = aes(x = gdpPercap, y = lifeExp, color = year)) +
+  geom_point() + geom_smooth(method = "lm", se = FALSE) + labs(x = "GDP Per Capita", y = "Life Expectancy in Years", title = "Life Expectancy and Per Capita GDP by Year")
 ```
 
 
 (@) The file below contains data about the population of cities in 1930 and their recreation expenditures. Can you create a scatter plot from this data? 
 ```{r}
 rec <- read.csv(file = "https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/Recreation-Expenditures.csv")
+
+library(ggplot2)
+rec <- read.csv(file = "https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/Recreation-Expenditures.csv")
+ggplot(data = rec, mapping = aes(x = population, y = total_expenditures)) +  geom_point() +  labs(x = "Population in 1930", y = "Recreation Expenditures", title = "Population vs. Recreation Expenditures in 1930")
+
 ```
 
 The `geom_point()` function allows us to create scatterplots but its not the only geom within `ggplot2()`.
@@ -99,17 +108,26 @@ ggplot(recreational.data, aes(x = population)) +
 
 (@) Use the Boston Women's voters dataset to create a histogram of the age of voters. 
 ```{r}
+library(DigitalMethodsData)
+library(ggplot2)
+data("BostonWomenVoters")
 
+ggplot(BostonWomenVoters, aes(x = Age)) +
+   geom_histogram(binwidth = 2, color = "purple", fill = "pink") +
+   labs(x = "Age", y = "Frequency", title = "Boston Women Voters' Age Histogram")
 ```
 
 (@) By default, `geom_histogram()` is choosing the number of bins. Can you change the number of bins or the bin width? (Hint: How might you look up the options for this function?)
 ```{r}
+ggplot(BostonWomenVoters, aes(x = Age)) +
+  geom_histogram(bins = 20, binwidth = 3) +
+labs(x = "Age", y = "Frequency", title = "Boston Women Voters' Age Histogram")
 
 ```
 
 (@) Explain, what does changing the number of bins do? 
 
-> 
+> What I found is that changing the number of bins in a histogram affects how the data is grouped and displayed. Each bin represents a range of values, and the height of each bin shows the number of observations (frequency) that fall in that range. 
 
 ### Barplots 
 
@@ -123,21 +141,52 @@ ggplot(sc.rec, aes(x = state, y = state.expenditures )) +
 
 (@) Using the `gayguides` data, create a bar chart that shows the number of locations in 1980 in South Carolina, Georgia, and North Carolina. 
 ```{r}
+library(DigitalMethodsData)
+library(ggplot2)
+data("gayguides")
+filtered_data <- gayguides %>%
+   filter(Year == 1980, state %in% c("SC", "GA", "NC")) %>%
+  group_by(state) %>%
+  summarize(locations = n())
+
+ggplot(filtered_data, aes(x = state, y = locations)) +
+  geom_col(fill = "skyblue") +
+  labs(x = "State", y = "Number of Locations", title = "Number of Locations in 1980")
 
 ```
 
 (@) Using the `gayguides` data, plot the number of religious institutions in each state.
 ```{r}
-
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+data("gayguides")
+religious.institutions.data <- gayguides %>%
+   filter(str_detect(description, "church|mosque|synagogue|temple")) %>%
+  group_by(state) %>%
+  summarize(churches = n())
+ggplot(religious.institutions.data, aes(x = state, y = churches)) +
+  geom_col(bewidth = 3, color = "Blue", fill = "coral") +
+  labs(x = "State", y = "Number of Religious Institutons", title = "Number of Religious Institutions per State") 
 ```
 
 (@) Formulate a question based on a dataset of your choice. That question should be something that would be appropriately answered by a bar chart. What is the question you want to explore?
 
-<
+< What is the average age of Boston women voters within each occupational sector?
 
 (@) Now write the code to answer that question and use comments (`#`) to explain your thinking as you go.
 ```{r}
-
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+data("BostonWomenVoters")
+occupation_age <- BostonWomenVoters %>%
+  group_by(Occupation) %>%
+  summarize(average_age = mean(Age, na.rm = TRUE))
+ggplot(occupation_age, aes(x = Occupation, y = average_age)) +
+  geom_col(bewidth = 3, color = "purple", fill = "plum") +
+  labs(x = "Occupation", y = "Average Age", title = "Average Age of Boston Women Voters by Occupation") 
 ```
 
 ### Line Charts
@@ -153,12 +202,44 @@ ggplot(gg.byyear, aes(x = Year, y = count)) +
 
 (@) Create a line chart that shows the number of religious institutions in the gay guides data over time.
 ```{r}
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+library(stringr)
 
+data("gayguides")
+
+religious_institutions_over_time <- gayguides %>%
+  filter(str_detect(description, "church|mosque|synagogue|temple")) 
+group_by(Year) %>%
+  summarize(number_of_institutions = n())
+
+ggplot(religious_institutions_over_time, aes(x = Year, y = number_of_institutions)) +
+  geom_line() +
+  geom_point()
+  labs(x = "Year", y = "Number of Religious Institutions", title = "Number of Religious Institutions Over Time") +
+  theme_minimal()
 ```
 
 (@) In the gayguides data, danger or risk is indicated in several different ways. Sometimes it through the use of an amenity categorization of (HOT) or (AYOR) which meant that these locations were frequented by police and should be used at your own risk. Other times, locations were listed as "inquire locally" in either the description or address field. There are many reasons a location would have requested to have been listed this way. Many times, it was due to harassment and the location deemed it too dangerous to publicly list its location. Can you create a subset of the gay guides data about risk and then use it to create a chart about the usage of these indicators over time? 
 ```{r}
-
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+data("gayguides")
+risk_indicators_subset <- gayguides %>%
+  filter(str_detect(amenityfeatures, "HOT|AYOR") | 
+           str_detect(description, "inquire locally") | 
+           str_detect(streetaddress, "inquire locally")) %>%
+  mutate(indicator = case_when(
+    str_detect(amenityfeatures, "HOT") ~ "HOT",
+    str_detect(amenityfeatures, "AYOR") ~ "AYOR",
+    str_detect(description, "inquire locally") | str_detect(streetaddress, "inquire locally") ~ "Inquire Locally",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(Year, indicator) %>%
+  summarize(count = n())
 ```
 
 
@@ -174,11 +255,36 @@ ggplot(gg.byyear, aes(x = Year, y = count)) +
 
 (@) Using the state recreation data, can you create a chart that outlines the total expenditures in South Carolina by city?
 ```{r}
+library(DigitalMethodsData)
+data(recreational.data)
+sc_expenditures_by_city <- recreational.data %>%
+  filter(state == "SC") %>%
+  group_by(city) %>%
+  summarize(total_expenditures)
+ggplot(sc_expenditures_by_city, aes(x = reorder(city, total_expenditures), y = total_expenditures)) +
+  geom_col(fill = "turquoise") +
+  labs(x = "City", y = "Total Expenditures", title = "Total Recreational Expenditures in South Carolina by City") 
 
 ```
 
 (@) Using the gayguides data can you select 5 types of locations and chart the number of each type between 1965 and 1980? 
 ```{r}
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+data("gayguides") 
+selected_types <- c("Bar", "Restaurant", "Hotel", "Club", "Sauna") 
+type_counts <- gayguides %>%
+  filter(Year >= 1965, Year <= 1980, type %in% selected_types) %>%
+  group_by(type, Year) %>%
+  summarize(count = n())
+ggplot(type_counts, aes(x = Year, y = count, color = type)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Year", y = "Number of Locations", title = "Number of Selected Location Types Between 1965 and 1980") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set2")
 
 ```
 
@@ -186,6 +292,19 @@ ggplot(gg.byyear, aes(x = Year, y = count)) +
 ```{r}
 rec.workers <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/RecreationData-Wide.csv")
 
+library(tidyr)
+library(dplyr)
+rec.workers <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/RecreationData-Wide.csv")
+long_rec_workers <- rec.workers %>%
+  pivot_longer(cols = starts_with("X"), names_to = "Year", values_to = "Count") %>%
+  mutate(Year = as.numeric(sub("X", "", Year)))
+long_rec_workers <- long_rec_workers %>%
+  separate(type_of_worker, into = c("Gender", "Status"), sep = " ") %>%
+  mutate(Status = ifelse(Status == "paid", "Paid", "Volunteer"))
+average_workers_by_status <- long_rec_workers %>%
+  group_by(Status) %>%
+  summarize(AverageCount = mean(Count, na.rm = TRUE)) 
+average_workers_by_status
 
 ```
 
@@ -194,25 +313,47 @@ In the slots below use the datasets for class (or a dataset of your choice) to c
 
 (@) Plot 1
 ```{r}
-
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+data("gayguides")
+establishments_over_time <- gayguides %>%
+  group_by(Year) %>%
+  summarize(number_of_establishments = n())
+ggplot(establishments_over_time, aes(x = Year, y = number_of_establishments)) +
+  geom_line() +
+  labs(x = "Year", y = "Number of Establishments", title = "Growth of Gay-Friendly Establishments Over Time") +
+  theme_minimal()
 ```
 
 (@) Plot 1 explanation: 
->
+> I through this plot aimed to observe the historical growth of gay-friendly establishments as listed in the gayguides dataset. The line chart shows the number of such places recorded each year, which can give us an idea of how the visibility and acceptance of LGBTQ+ spaces have evolved. An increasing trend suggests greater social acceptance and community support.
 
 (@) Plot 2
 ```{r}
-
+library(DigitalMethodsData)
+library(ggplot2)
+data(recreational.data)
+ggplot(recreational.data, aes(x =population, y = city)) +
+  geom_col(color = "lightgreen", fill = "yellow") +
+ labs(x = "Population", y = "City", title = "Population Trend by City") +
+  theme_minimal() 
 ```
 
 (@) Plot 2 explanation: 
->
+> Through this bar chart I intended a design to compare the population sizes of various cities. Each bar represents a different city, and the height of the bar indicates the population size of that city. 
 
 (@) Plot 3. For this one, try a different kind of plot. [Check out a useful gallery here.](https://github.com/regan008/DigitalMethodsData/blob/main/raw/RecreationData-Wide.csv)
 (For this week, avoid choosing a map. We'll talk more about maps and geographic data over the next two weeks.)
 ```{r}
-
+library(DigitalMethodsData)
+library(ggplot2)
+data(recreational.data)
+ggplot(recreational.data, aes(x = state, y = total_expenditures)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(y = "Expenditures", title = "Distribution of Recreational Expenditures by State")
 ```
 
 (@) Plot 3 explanation: 
->
+> This boxplot aims to explore the distribution of recreational expenditures by state, revealing disparities in spending levels across different locations. We can infer about the equity of recreational investments and identify states with exceptionally high or low spending.
