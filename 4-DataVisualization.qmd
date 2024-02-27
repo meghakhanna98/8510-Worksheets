@@ -36,7 +36,7 @@ data(gapminder)
 
 (@) Take a look at the data. What can you say about it? 
 
-> According to what I can observe, the dataset consists of 1,704 observations (rows) and 6 columns: country, continent, year, Life expectancy, population, and GDP per capita. When I googled the other abbreviations, it says (<fct>) is factors denoted to country and continent which indicates categorical data. The year is an integer (<int>), while lifeExp (life expectancy), pop (population), and gdpPercap (GDP per capita) are numeric (<dbl>), with lifeExp and gdpPercap being double-precision floating-point numbers.
+> According to what I can observe, the dataset consists of 1,704 observations (rows) and 6 columns: country, continent, year, Life expectancy, population, and GDP per capita. When I searched the other abbreviations, it says (<fct>) is factors denoted to country and continent which indicates categorical data. The year is an integer (<int>), while lifeExp (life expectancy), pop (population), and gdpPercap (GDP per capita) are numeric (<dbl>), with lifeExp and gdpPercap being double-precision floating-point numbers.
 
 This data includes variables for life exptenency and per capita GDP. Lets say we want to plot these two variables against each other for all country-years within the dataset. First we have to tell `ggplot()` what our data is. 
 ```{r}
