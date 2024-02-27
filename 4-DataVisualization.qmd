@@ -240,6 +240,8 @@ risk_indicators_subset <- gayguides %>%
   )) %>%
   group_by(Year, indicator) %>%
   summarize(count = n())
+
+head(risk_indicators_subset)
 ```
 
 
@@ -327,7 +329,7 @@ ggplot(establishments_over_time, aes(x = Year, y = number_of_establishments)) +
 ```
 
 (@) Plot 1 explanation: 
-> I through this plot aimed to observe the historical growth of gay-friendly establishments as listed in the gayguides dataset. The line chart shows the number of such places recorded each year, which can give us an idea of how the visibility and acceptance of LGBTQ+ spaces have evolved. An increasing trend suggests greater social acceptance and community support.
+> I through this plot aimed to observe the historical growth of gay-friendly establishments as listed in the gayguides dataset. The line chart shows the number of such places recorded each year, which can give us an idea of how the visibility and acceptance of LGBTQ+ spaces have evolved. The increasing trend in the plot gives us a clue that there was greater social acceptance and community support.
 
 (@) Plot 2
 ```{r}
@@ -341,7 +343,7 @@ ggplot(recreational.data, aes(x =population, y = city)) +
 ```
 
 (@) Plot 2 explanation: 
-> Through this bar chart I intended a design to compare the population sizes of various cities. Each bar represents a different city, and the height of the bar indicates the population size of that city. 
+> Through this bar chart I intended a design to compare the population sizes of various cities. Each bar represents a different city, and the height of the bar indicates the population size of that city. Though, it looks a bit chaotic, but it helped me identify the population trend.
 
 (@) Plot 3. For this one, try a different kind of plot. [Check out a useful gallery here.](https://github.com/regan008/DigitalMethodsData/blob/main/raw/RecreationData-Wide.csv)
 (For this week, avoid choosing a map. We'll talk more about maps and geographic data over the next two weeks.)
@@ -351,9 +353,8 @@ library(ggplot2)
 data(recreational.data)
 ggplot(recreational.data, aes(x = state, y = total_expenditures)) +
   geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(y = "Expenditures", title = "Distribution of Recreational Expenditures by State")
 ```
 
 (@) Plot 3 explanation: 
-> This boxplot aims to explore the distribution of recreational expenditures by state, revealing disparities in spending levels across different locations. We can infer about the equity of recreational investments and identify states with exceptionally high or low spending.
+> With the help of boxplot, I aimed to explore the distribution of recreational expenditures by state, revealing disparities in spending levels across different locations. We can infer about the equity of recreational investments and identify states with exceptionally high or low spending.
