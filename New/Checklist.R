@@ -30,6 +30,7 @@ summary(gayguides$Year)
 table(gayguides$city)
 
 #Validate with at least one external data source
+#The data can be validated through Bob Damron Address Book Data, 1965-1985
 
 #Try the easy solution first
 #1)
@@ -64,3 +65,4 @@ ggplot(gayguides, aes(x = Year)) +
   labs(title = "Distribution of Years in Gay Guides Dataset", x = "Year", y = "Count")
 
 #Follow up questions
+#For the follow up question, we can find an average of the acceptance among the cities each year. Also, with the help of data, we can search within the intricate details of each cities. 
