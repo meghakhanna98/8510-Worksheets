@@ -53,26 +53,54 @@ head(underground.RR.coordinates )
 
 
 (@) Geocode the Boston Women Voters dataset. Note that the data does include street addresses but because they are broken into parts - street address number, street, etc - you'll need to combine them into a full address to pass to the geocoding function. 
+
+For this question, I tried several ways  but they did not work. But I got to learn about the tmaptools, map_df function and 'dsk' source which I found interesting
 ```{r}
+#trial 1 
+
+library(DigitalMethodsData)
+data("BostonWomenVoters")
+
+# Load necessary libraries
+library(tidyverse)
+library(tmaptools)
+
+BostonWomenVoters <- BostonWomenVoters %>%
+  mutate(full.address = paste(Town.of.Birth, State.or.Province.of.Birth, Country.of.Birth, sep = ", "))
+
+BostonWomenVoters.coordinates <- map_df(BostonWomenVoters$full.address, ~ {
+  geocode_result <- geocode_OSM(.x)
+ 
+  tibble(full.address = .x, lat = geocode_result$coords[2], lon = geocode_result$coords[1])
+})
+
+
+BostonWomenVoters_subset <- BostonWomenVoters.coordinates %>%
+  slice(1:100)
+
+# Display the first few rows of the subsetted data
+head(BostonWomenVoters_subset)
+
+
+```
+```{r}
+#trial 2
 data("BostonWomenVoters")
 
 library(tidyverse)
-library(ggplot2)
 library(ggmap)
-BostonWomenVoters <- BostonWomenVoters%>%
-  mutate(full.address = paste(Street.Number.on.April.1, Street.of.Residence.on.April.1, "Boston", "MA", sep=" "))
+library(tmaptools)
 
-BostonWomenVoters.coordinates <- BostonWomenVoters%>%
-map_df(BostonWomenVoters$full.address, function(address) {
-  geocode_result <- geocode(address, source = "osm")
-  tibble(full.address = address, lat = geocode_result$lat, lon = geocode_result$lon)
-})
-head(BostonWomenVoters.coordinates)
+streetaddresses <- BostonWomenVoters %>%
+  mutate(streetaddress = paste(Street.Number.on.April.1, Street.of.Residence.on.April.1, "Boston", "MA", sep=" "))
 
+
+address.geocoded <- streetaddresses %>% geocode(address = streetaddress, method='dsk', lat = latitude, long = longitude)
+head(address.geocoded)
 ```
 
-
 (@) As mentioned above - there are many ways to make a map in R. The `ggmap()` package has a function called `qmplot()` which allows for the quick plotting of maps with data. Look up the documentation for this package and use it to create a plot of the recreational data that we gecode above.
+For this particular question, I particularly could not apply qmplot(). I then tried doing a code without it which obviously did not give the same results but was successful.
 ```{r}
 library(tidyverse)
 library(ggmap)
@@ -91,6 +119,7 @@ ggplot(data = usa) +
 ```
 
 ```{r}
+#trial 2
 library(tidyverse)
 library(ggmap)
 rec.data <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/Recreation-Expenditures.csv")
@@ -122,7 +151,7 @@ usa <- map_data("state")
 
 (@) `map_data()` generates a data frame. Take a look at this data frame, what types of data are included? 
 
-> Since the dataframe identifies latitude, longitude, group, order, region, subregion,  these columns, I think, collectively describe the shapes of geographic entities such as states or counties by providing a sequence of latitude and longitude coordinates. 
+> Since the dataframe identifies latitude, longitude, group, order, region, subregion,  these columns, I think, it collectively describe the shapes of geographic entities such as states or countries by providing a sequence of latitude and longitude coordinates. 
 
 
 We can now pass this data to ggplot to create a simple basemap. When we wanted to create a bar plot using `ggplot()` we called `geom_bar`. When we wanted to create a line chart we used `geom_point()` and `geom_line()`. The sample principle applies here and `ggplot()` provides a geom for maps.
@@ -149,7 +178,7 @@ ggplot() +
 library(ggplot2)
 data(gayguides)
 gayguides_filtered <- gayguides %>%
-  filter(lat > 24, lat < 50, lon > -125, lon < -66)
+  filter(lat > 24, lat < 50, lon > -125, lon < -66) 
 ggplot(data = usa) + 
   geom_map(data = usa, map = usa, aes(long, lat, map_id=region), fill = "pink", color = "white") +
   geom_point(data = gayguides_filtered, aes(x = lon, y = lat), color = "blue", size = 1) +
@@ -342,7 +371,7 @@ my_map
 
 (@) Explain what choices you made in building this map? Why might you use leaflet over ggplot? When would ggplot be more desirable? 
 
-> I used the gayguides dataset primaraly because I was aware of the latitude and longitude mentioned in the map which can be helpful for plotting. I used leaflet to create an interactive map based of the dataset. Decisions on how to represent data points (markers) and what information to display in popups were based on the content, aiming to provide meaningful context. I also filtered the rows with missing or invalid latitude/longitude values were removed to ensure the map's accuracy. This answers the second question that the interactivity provided by Leaflet, including zoomable maps and clickable markers with popups, is not available in ggplot, which generates static images. However, ggplot might be preferred when the goal is to create static maps for publication or reports, where interactivity is not required.
+> I used the gayguides dataset primaraly because I was aware of the latitude and longitude mentioned in the map which can be helpful for plotting. I used leaflet to create an interactive map based of the dataset. Decisions on how to represent data points (markers) and what information to display in popups were based on the content, aiming to provide meaningful context. I also filtered the rows with missing or invalid latitude/longitude values to ensure the map's accuracy. This answers the second question that the interactivity provided by Leaflet, including zoomable maps and clickable markers with popups, is not available in ggplot, which generates static maps. However, ggplot might be preferred when the goal is to create static maps for publication or reports, where interactivity is not required.
 Also, I feel that if the map is part of a larger set of visualizations that require a consistent aesthetic or are being combined into a complex figure, ggplot's fumction options and ability to create a wide range of plot types might make it a better choice.
 
 
