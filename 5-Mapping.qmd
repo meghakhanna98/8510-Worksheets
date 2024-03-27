@@ -54,38 +54,9 @@ head(underground.RR.coordinates )
 
 (@) Geocode the Boston Women Voters dataset. Note that the data does include street addresses but because they are broken into parts - street address number, street, etc - you'll need to combine them into a full address to pass to the geocoding function. 
 
-For this question, I tried several ways  but they did not work. But I got to learn about the tmaptools, map_df function and 'dsk' source which I found interesting
+For this question, I tried several ways  but they did not work. But I got to learn about the tmaptools, map_df function and 'dsk' source which I found interesting.
+
 ```{r}
-#trial 1 
-
-library(DigitalMethodsData)
-data("BostonWomenVoters")
-
-# Load necessary libraries
-library(tidyverse)
-library(tmaptools)
-
-BostonWomenVoters <- BostonWomenVoters %>%
-  mutate(full.address = paste(Town.of.Birth, State.or.Province.of.Birth, Country.of.Birth, sep = ", "))
-
-BostonWomenVoters.coordinates <- map_df(BostonWomenVoters$full.address, ~ {
-  geocode_result <- geocode_OSM(.x)
- 
-  tibble(full.address = .x, lat = geocode_result$coords[2], lon = geocode_result$coords[1])
-})
-
-
-BostonWomenVoters_subset <- BostonWomenVoters.coordinates %>%
-  slice(1:100)
-
-# Display the first few rows of the subsetted data
-head(BostonWomenVoters_subset)
-
-
-```
-```{r}
-#trial 2
-data("BostonWomenVoters")
 
 library(tidyverse)
 library(ggmap)
@@ -94,9 +65,17 @@ library(tmaptools)
 streetaddresses <- BostonWomenVoters %>%
   mutate(streetaddress = paste(Street.Number.on.April.1, Street.of.Residence.on.April.1, "Boston", "MA", sep=" "))
 
+BostonWomenVoters_subset <- streetaddresses %>%
+  slice(1:50)
 
-address.geocoded <- streetaddresses %>% geocode(address = streetaddress, method='dsk', lat = latitude, long = longitude)
-head(address.geocoded)
+geocoded_data <- map_df(BostonWomenVoters_subset$streetaddress, function(address) {
+  geocode(address, method='osm')
+})
+
+BostonWomenVoters_geocoded <- bind_cols(BostonWomenVoters_subset, geocoded_data)
+
+head(BostonWomenVoters_geocoded)
+
 ```
 
 (@) As mentioned above - there are many ways to make a map in R. The `ggmap()` package has a function called `qmplot()` which allows for the quick plotting of maps with data. Look up the documentation for this package and use it to create a plot of the recreational data that we gecode above.
