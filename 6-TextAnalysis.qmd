@@ -418,7 +418,7 @@ You should use the rest of this worksheet to practice text analysis (and R more 
 
 Write up a research plan in the space below. What are you looking to explore?
 
-> 
+> The research will attempt to uncover the linguistic distinctions between promotion language and reception language and observing the evolution of this language throughout the period when Buffalo Bill's Wild West show was active.
 
 Lets download the data. 
 ```{r}
@@ -467,69 +467,76 @@ bb_combined <- left_join(bb, bb.metadata, by = c("doc_id" = "Filename"))
 ```
 
 (@) Now you can begin your textual analysis for Dr. S. Add code chunks below and intersperse text to explain what you are doing and why in the text of the worksheet. 
+
 ```{r}
-#1 I'm preparing the text
+#1 I am loading the required libraries
 library(tidytext)
 library(stringr)
 library(dplyr)
-bb_combined <- bb_combined %>%
-  mutate(text = str_replace_all(text, "[[:punct:]]", " "))
-bb_combined <- bb_combined %>%
-  mutate(text = str_trim(text))
-
-#2 Tokenization
-bb_tokens <- bb_combined %>%
-  unnest_tokens(word, text)
-
-#3 Avoiding stop words
-data(stop_words)
-bb_tokens <- bb_tokens %>%
-  anti_join(stop_words, by = "word")
-
-#4 Word frequency
-word_freq <- bb_tokens %>%
-  count(word, sort = TRUE)
-
-#5 TF-IDF
-tf_idf <- bb_tokens %>%
-  count(doc_id, word) %>%
-  bind_tf_idf(word, doc_id, n)
-
-#6 Analyzing sentiments
-bb_sentiment <- bb_tokens %>%
-  inner_join(get_sentiments("bing"), by = "word") %>%
-  count(doc_id, sentiment, sort = TRUE)
-
-#7 I am joining the tf_idf results with metadata to get categories (Promotion, Reception, Extraneous)
-tf_idf_categorized <- tf_idf %>%
-  left_join(bb.metadata, by = c("doc_id" = "Filename"))
-
-#8 I am separating analyses for Promotion and Reception
-promotional_language <- tf_idf_categorized %>%
-  filter(R_P_E == "P") %>%
-  top_n(10, tf_idf)
-
-reception_language <- tf_idf_categorized %>%
-  filter(R_P_E == "R") %>%
-  top_n(10, tf_idf)
-
-
-#9 I am attempting to study the change over time analysis can be done by filtering by year and comparing frequencies
-tf_idf_temporal <- tf_idf_categorized %>%
-  mutate(FullDate = gsub(" .*", "", FullDate), 
-         Date = as.Date(FullDate, format = "%Y/%m/%d")) %>%
-  separate(FullDate, into = c("Year", "Month", "Day"), sep = "-", remove = FALSE)
-
-additional_stop_words <- data.frame(word = c("buffalo", "bill", "wild", "west"))
-stop_words <- bind_rows(stop_words, additional_stop_words)
-
-#10 I am attempting to visualize the results
 library(ggplot2)
 library(igraph)
 library(ggraph)
 
-graph <- graph_from_data_frame (tf_idf_temporal)
+#2 I am Prepare the text by removing punctuation and space
+bb_combined <- bb_combined %>%
+  mutate(text = str_replace_all(text, "[[:punct:]]", " ")) %>%
+  mutate(text = str_trim(text))
 
+#3 I am tokenizing the text into words
+bb_tokens <- bb_combined %>%
+  unnest_tokens(word, text)
+
+#4 I am removing stop words including additional custom words and numbers
+custom_stop_words <- c("buffalo", "cody", "bill", "wild", "west")
+bb_tokens <- bb_tokens %>%
+  filter(!word %in% custom_stop_words) %>%
+  anti_join(stop_words, by = "word") %>%
+  filter(!str_detect(word, "^[0-9]+$"))  
+
+#5 I am calculating the word frequency
+word_freq <- bb_tokens %>%
+  count(word, sort = TRUE)
+
+#6 I am calculating TF-IDF
+tf_idf <- bb_tokens %>%
+  count(doc_id, word) %>%
+  bind_tf_idf(word, doc_id, n)
+
+#7 I am attempting to perform sentiment analysis
+bb_sentiment <- bb_tokens %>%
+  inner_join(get_sentiments("bing"), by = "word") %>%
+  count(doc_id, sentiment, sort = TRUE)
+
+#8 I am joining TF-IDF results with metadata to categorize the entries
+tf_idf_categorized <- tf_idf %>%
+  left_join(bb.metadata, by = c("doc_id" = "Filename"))
+
+#9 I am now separate the data into categories for Promotion, Reception, and Extraneous
+promotional_df <- tf_idf_categorized %>%
+  filter(R_P_E == "P")
+
+reception_df <- tf_idf_categorized %>%
+  filter(R_P_E == "R")
+
+extraneous_df <- tf_idf_categorized %>%
+  filter(R_P_E == "E")
+
+#10 To unclutter I am extract the top 10 terms from Promotion and Reception categories
+top_promotional_terms <- promotional_df %>%
+  top_n(10, tf_idf)
+
+top_reception_terms <- reception_df %>%
+  top_n(10, tf_idf)
+
+#11 I am prepare the data now for temporal analysis 
+tf_idf_temporal <- tf_idf_categorized %>%
+  mutate(FullDate = as.Date(FullDate, format = "%Y-%m-%d")) %>%
+  separate(FullDate, into = c("Year", "Month", "Day"), sep = "-", remove = FALSE)
+
+#12 I am preparing graph data frame for visualization 
+graph <- graph_from_data_frame(tf_idf_temporal)
+
+#13 Lastly, I am visualizing the data using ggraph 
 g <- ggraph(graph, layout = "fr") + 
   geom_edge_link(aes(edge_alpha = n, edge_width = n), color = "pink") +
   geom_node_point(size = 1, color = "skyblue") +
@@ -538,6 +545,7 @@ g <- ggraph(graph, layout = "fr") +
        x = "Year",
        y = "TF-IDF") +
   theme_void()
+
 plot(g)
 
 ```
@@ -547,8 +555,9 @@ plot(g)
 
 I focused on the difference in promotion language versus reception language and change over time within the Buffalo Bill's Wild West show coverage for my research question.
 
-Findings:
+Reception Language: Terms like "forfeit", "bombs", "carlisle", "curtner", and "flo" appeared with the highest frequency in Reception language. These terms, particularly "bombs" and "forfeit", could suggest topics of discussion that involve the drama or unexpected events associated with the shows, possibly even reflecting public sentiment or critical perspectives.
 
+Promotional Language: Conversely, terms such as "unreadable", "bloomington", "ingraham", "date", and "bedford" were most prevalent in Promotional language. The presence of place names indicates a geographical targeting in promotional efforts, while "unreadable" could refer to the state of archival materials.
 
 
 
