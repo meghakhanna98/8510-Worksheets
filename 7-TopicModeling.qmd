@@ -106,12 +106,11 @@ ac.top.terms %>%
 library(ggplot2)
 library(dplyr)
 
-ac.top.terms <- ac.topics %>%
-  filter(topic == 1) %>%            
-  arrange(desc(beta)) %>%          
-  slice(1:10)                        
-
-ggplot(ac.top.terms, aes(x = beta, y = reorder(term, beta))) +
+ac_top_terms <- ac.topics %>%
+  filter(topic == 1) %>%           
+  arrange(desc(beta)) %>%         
+  slice_head(n = 10)               
+ggplot(ac_top_terms, aes(x = beta, y = reorder(term, beta))) +
   geom_col() +
   labs(y = "Terms", x = "Beta", title = "Top 10 Words for Topic 1") +
   theme_minimal()
@@ -170,86 +169,60 @@ mb.metadata <- read.csv("https://raw.githubusercontent.com/regan008/8510-TextAna
 (@) What happens if you create a custom stopword list? How does this change the model?
 ```{r}
 #1 attempt
-library(tidytext)
-library(tidyverse)
+
 library(readtext)
-library(tm)
-library(topicmodels)
-custom_stopwords <- c("editorial", "committee", "to", "digitized", "by", "review", "google")
-stopwords <- c(stopwords, custom_stopwords)
-dtm <- DocumentTermMatrix(mb.metadata, control = list(stopwords = TRUE))
-lda_model <- LDA(dtm, k = 25)
-```
-
-```{r}
-#2 attempt
-
-library(tidytext)
 library(tidyverse)
-library(readtext)
-library(tm)
-library(topicmodels)
+library(tidytext)
 
 
-download.file("https://github.com/regan008/8510-TextAnalysisData/blob/main/MindAndBody.zip?raw=true", "MB.zip", mode = "wb")
+
+download.file("https://github.com/regan008/8510-TextAnalysisData/blob/main/MindAndBody.zip?raw=true", "MB.zip")
 unzip("MB.zip")
+file.rename("txt", "mbtxt")
 
+mb_texts <- readtext("mbtxt/*.txt")
 
 mb_metadata <- read.csv("https://raw.githubusercontent.com/regan008/8510-TextAnalysisData/main/mb-metadata.csv")
 
 
-file_paths <- list.files(pattern = "*.txt") 
+mb.combined <- full_join(mb_texts, mb_metadata, by = c("doc_id" = "Filename"))
 
-mb_texts <- readtext(file_paths)
-mb_whole <- full_join(mb_metadata, mb_texts, by = c("Filename" = "doc_id")) %>% as_tibble()
 
-custom_stopwords <- c("editorial", "committee", "to", "digitized", "by", "review", "google")
-tidy_mb <- mb_whole %>%
+custom_stopwords <- tibble(word = c("editorial", "committee", "digitized", "to", "by", "google")) 
+
+mb_tidy <- mb.combined %>%
   unnest_tokens(word, text) %>%
-  filter(str_detect(word, "[a-z']$")) %>%
-  anti_join(stop_words()) %>%
-  filter(!word %in% custom_stopwords)
+   anti_join(get_stopwords(), by = "word") %>% 
+  anti_join(custom_stopwords)%>%  
+  filter(!grepl("[[:digit:]]", word))
 
-dtm <- DocumentTermMatrix(Corpus(VectorSource(tidy_mb$text)), control = list(stopwords = TRUE))
-
-lda_model <- LDA(dtm, k = 25, control = list(seed = 1234))
-
-```
-
-(@) Can you create a topic model for just the documents in the 1920s? How does that change the model? 
-```{r}
-library(tidytext)
-library(tidyverse)
-library(dplyr)
-library(readtext)
-library(tm)
 library(topicmodels)
 
-metadata_1920s <- mb.metadata %>%
-  filter(Year >= 1920 , Year <= 1929)
+dtm_mb <- mb_tidy %>%
+  count(doc_id, word) %>%
+  cast_dtm(doc_id, word, n)
 
-custom_stopwords <- c("specific", "words", "to", "remove", "basedon", "yourcorpus")
 
-preprocessed_docs <- list()
+set.seed(123) 
+lda_mb <- LDA(dtm_mb, k = 25, control = list(seed = 1234))
 
-for (i in 1:nrow(metadata_1920s)) {
-  doc_path <- file.path("https://raw.githubusercontent.com/regan008/8510-TextAnalysisData/main/mb-metadata.csv", metadata_1920s$Filename[i])
+library(broom)
+topics_mb <- tidy(lda_mb, matrix = "beta")
 
-  doc_text <- readtext(doc_path)$text
- 
-  doc_corpus <- Corpus(VectorSource(doc_text))
-  
-}
+head(topics_mb)
 
-final_corpus_1920s <- do.call(c, preprocessed_docs)
+mb.top.terms <- topics_mb %>%
+  arrange(desc(beta)) %>% 
+  group_by(topic) %>% slice(1:5)
 
-dtm_1920s <- DocumentTermMatrix(final_corpus_1920s)
-
-lda_model_1920s <- LDA(dtm_1920s, k = 25, control = list(seed = 1234))
-lda_model_1920s
+mb.top.terms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
 
 ```
-
 
 (@) Now, lets return to the Buffalo Bill data from last week. You should be able to use topic modeling to address two of the research questions provided:
 
@@ -275,10 +248,24 @@ library(topicmodels)
 library(tidytext)
 library(dplyr)
 library(tm)  
+library(readtext)
+library(dplyr)
+library(ggplot2)
+
+
+data_dir <- paste(getwd(), "/txt", sep = "")
+bb <- readtext(paste0(data_dir, "/*.txt"))
+bb.metadata <- read.csv("https://raw.githubusercontent.com/dseefeldt/IndianaNewspapers/main/metadata.csv")
+
+bb_combined <- full_join(bb, bb.metadata, by = c("doc_id" = "Filename"))
+
+custom_stop_words <- c("buffalo", "cody", "bill", "wild", "west")
+
 
 bb_tidy <- bb_combined %>%
   unnest_tokens(word, text) %>%
-  anti_join(get_stopwords(), by = "word")
+  anti_join(get_stopwords(), by = "word") %>% 
+  filter(!grepl("[[:digit:]]", word))
 
 dtm_all <- bb_tidy %>%
   count(doc_id, word) %>%
@@ -297,51 +284,121 @@ dtm_reception <- bb_tidy %>%
 lda_promotion <- LDA(dtm_promotion, k = 10, control = list(seed = 1234))
 lda_all <- LDA(dtm_all, k = 10, control = list(seed = 1234))
 lda_reception <- LDA(dtm_reception, k = 10, control = list(seed = 1234))
+
+library(broom)
+topics.all <- tidy(lda_all, matrix = "beta")
+head(topics.all)
+
+topics.r <- tidy(lda_reception, matrix = "beta")
+head(topics.r)
+
+topics.p <- tidy(lda_promotion, matrix = "beta")
+head(topics.p)
+library(wordcloud)
+library(RColorBrewer)
+
+# All data wordcloud for Topic 2
+topic_all <- topics.all %>% filter(topic == 2)
+wordcloud(words = topic_all$term, freq = topic_all$beta, max.words = 100, random.order = FALSE,
+    rot.per = 0.3, colors = brewer.pal(6, "Dark2"))
+
+# Promotion wordcloud for Topic 2
+topic_promotion <- topics.p %>% filter(topic == 2)
+wordcloud(words = topic_promotion$term, freq = topic_promotion$beta, max.words = 100, random.order = FALSE,
+    rot.per = 0.3, colors = brewer.pal(6, "Dark2"))
+
+# Reception wordcloud for Topic 2
+topic_reception <- topics.r %>% filter(topic == 2)
+wordcloud(words = topic_reception$term, freq = topic_reception$beta, max.words = 100, random.order = FALSE,
+    rot.per = 0.3, colors = brewer.pal(6, "Dark2"))
+
+plot_top_terms <- function(topics_df, title = "Top Terms Across Topics") {
+  top_terms <- topics_df %>%
+    group_by(topic) %>%
+    top_n(10, beta) %>%
+    ungroup() %>%
+    arrange(topic, -beta)
+  
+  ggplot(top_terms, aes(x = reorder(term, beta), y = beta, fill = as.factor(topic))) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~ topic, scales = "free_y") +
+    labs(x = "Term", y = "Beta", title = title) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# Plot top terms for all data
+plot_top_terms(topics.all, "Top Terms Across Topics in All Data")
+
+# Plot top terms for promotion data
+plot_top_terms(topics.p, "Top Terms Across Topics in Promotion Data")
+
+# Plot top terms for reception data
+plot_top_terms(topics.r, "Top Terms Across Topics in Reception Data")
+
 ```
 
 ```{r}
 
-download.file("https://github.com/dseefeldt/IndianaNewspapers/raw/main/bb-txt.zip", "bb-txt.zip")
-unzip("bb-txt.zip")
-
-
-bb.metadata <- read.csv("https://raw.githubusercontent.com/dseefeldt/IndianaNewspapers/main/metadata.csv")
-
+library(readtext)
+library(dplyr)
 library(topicmodels)
 library(tidytext)
-library(dplyr)
 library(tm)
+library(ggplot2)
+
+
+data_dir <- paste(getwd(), "/txt", sep = "")
+bb <- readtext(paste0(data_dir, "/*.txt"))
+bb.metadata <- read.csv("https://raw.githubusercontent.com/dseefeldt/IndianaNewspapers/main/metadata.csv")
+
+bb_combined <- full_join(bb, bb.metadata, by = c("doc_id" = "Filename"))
 
 custom_stop_words <- c("buffalo", "cody", "bill", "wild", "west")
 
+
 bb_tidy <- bb_combined %>%
   unnest_tokens(word, text) %>%
-  filter(!word %in% custom_stop_words) %>% 
-  anti_join(get_stopwords(), by = "word") %>% 
+  anti_join(stop_words) %>%
+  filter(!word %in% custom_stop_words) %>%  
+  filter(!str_detect(word, '\\d'))  %>% 
+  filter(!grepl("[[:digit:]]", word))
 
-bb_dtm <- bb_tidy %>%
-  count(doc_id, word, sort = TRUE) %>%
-  cast_dtm(doc_id, word, n)
+dtm_bb <- bb_tidy %>%
+  count(doc_id, word) %>%
+  cast_dtm(document = doc_id, term = word, value = n)
 
 set.seed(123)
-bb_lda <- LDA(bb_dtm, k = 10, control = list(seed = 1234))
+bb_lda <- LDA(dtm_bb, k = 10, control = list(seed = 1234))
 
-topics(bb_lda)
+library(broom)
+topics.bb <- tidy(bb_lda, matrix = "beta")
+head(topics.bb)
+
+top_terms <- topics.bb %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+print(top_terms)
+library(wordcloud)
+library(RColorBrewer)
+
+topic1 <- top_terms %>% filter(topic == 2)
+
+wordcloud(words = topic1$term, freq = topic1$beta, max.words = 100, random.order = FALSE,
+          rot.per = 0.3, colors = brewer.pal(6, "Dark2"))
 
 
-bb.metadata <- bb.metadata %>%
-  separate(FullDate, into = c("year", "month", "day"), sep = "-")
-
-bb_topics_time <- bb_topics %>%
-  left_join(bb.metadata, by = "doc_id") %>%
-  group_by(topic, year, category) %>%
-  summarize(beta_sum = sum(beta))
-
-ggplot(bb_topics_time, aes(x = year, y = beta_sum, color = category)) +
-  geom_line() +
-  facet_wrap(~ topic)
 
 ```
+
+The presence of terms like "physical", "exercise', "arms", "arm," and "raise" might suggest that this topic may relate to physical activity, possibly training or descriptions of physical feats. This could be indicative of narratives or descriptions of the athleticism of performers or characters within the Buffalo Bill's Wild West show. Terms like "forw" (possibly shorthand for "forward") and "front" suggest a focus on movement, which could relate to staging directions in promotional materials or actions in the show as described in reviews. The word "school" might point to an educational element, perhaps discussing the training of performers or an aspect of the show that had an instructive nature.
+
+Specifically fot text analysis of promotional language, I assume the focus revolve around the central figure of Buffalo Bill and the Wild West, possibly encompassing promotional materials that highlight the main attractions of the show and Cody's persona. The term "exhibition" might indicate that this topic may cover texts related to the shows or exhibitions that are part of the Buffalo Bill Wild West spectacles.The word "west" and "fort" can point to the setting of these exhibitions, likely the American West, which is in line with the thematic content of Buffalo Bill's shows.
+
+The terms listed in reception language list do not immediately suggest a theme to me. They are quite diverse, with words like "Michigan" "griddle" (related to cooking), "teepees" (shelter or accommodation, possibly related to Native American culture), and "burros" (animals, donkeys). Other words that came across were "Promised" and "hailed" which could relate to reception language, while "courteous" could relate to descriptions of character conduct.
 
 
 **This was the final worksheet for this class. You did it - you learned to code in R! Congrats!**
