@@ -307,12 +307,13 @@ How would you know what options are available for each function in R? Every func
 We can ask R to pull up the documentation like this:
 ```{r}
 ?round()
+?sqrt()
 ```
 
 (@) Now you try, find the documentation for the function  `signif()`.
 ```{r}
-signif(123.456789, digits = 3)
-[1] 123
+?signif()
+
 ```
 
 In real life, you typically you wouldn't want to store this code in your script file. You probably don't need to pull up the documentation for the function every time you run that piece of code. But for the purposes of this worksheet we're adding it to our `.Rmd` document. 
@@ -321,6 +322,7 @@ In real life, you typically you wouldn't want to store this code in your script 
 
 >
 ```{r}
+?floor()
 The floor() function in R is used to round down numerical values to the nearest integer. For example, I used the the following to help me understand -
 floor(3.8)
 floor(0.0001)
@@ -426,73 +428,13 @@ That gives us the first 6 rows of data. Its really useful if you just want to pe
 ```{r}
 > help(package="DigitalMethodsData")
 > head(gayguides, 10)
-X   ID        title                        description streetaddress           type
-1   1 3213       'B.A.'                    (woods & ponds)               Cruising Areas
-2   2 2265 'B.A.' Beach                           2 mi. E.        Rte. 2 Cruising Areas
-3   3 3269 'B.A.' Beach                 nr. Salt Air Beach               Cruising Areas
-4   4 3388 'B.A.' Beach      nr. Evergreen Floating Bridge               Cruising Areas
-5   5 3508 'B.A.' Beach               (2 mi. E. on Rte. 2)               Cruising Areas
-6   6 5116 'B.A.' Beach      nr. Evergreen Floating Bridge               Cruising Areas
-7   7  780 'B.A.' Beach on Russian River, at Wohler Bridge               Cruising Areas
-8   8 3810 'B.A.' Beach                           2 mi. E.        Rte. 2 Cruising Areas
-9   9 4979 'B.A.' Beach                 nr. Salt Air Beach               Cruising Areas
-10 10 5191 'B.A.' Beach      nr. Evergreen Floating Bridge               Cruising Areas
-amenityfeatures           city state Year notes      lat        lon
-1      Cruisy Area    Lake Placid    NY 1982       44.27949  -73.97987
-2      Cruisy Area           Troy    NY 1981       42.72841  -73.69178
-3      Cruisy Area Salt Lake City    UT 1981       40.74781 -112.18727
-4      Cruisy Area        Seattle    WA 1981       47.60621 -122.33207
-5      Cruisy Area           Troy    NY 1982       42.72841  -73.69178
-6      Cruisy Area        Seattle    WA 1983       47.60621 -122.33207
-7      Cruisy Area  Russian River    CA 1983       38.91163 -123.01105
-8      Cruisy Area           Troy    NY 1983       42.72841  -73.69178
-9      Cruisy Area Salt Lake City    UT 1983       40.74781 -112.18727
-10     Cruisy Area        Seattle    WA 1984       47.60621 -122.33207
-status
-1  Location could not be verified. General city or location coordinates used.
-2  Location could not be verified. General city or location coordinates used.
-3  Location could not be verified. General city or location coordinates used.
-4  Location could not be verified. General city or location coordinates used.
-5  Location could not be verified. General city or location coordinates used.
-6  Location could not be verified. General city or location coordinates used.
-7  Location could not be verified. General city or location coordinates used.
-8  Location could not be verified. General city or location coordinates used.
-9  Location could not be verified. General city or location coordinates used.
-10 Location could not be verified. General city or location coordinates used.
 
 ```
 
 (@) Can you find the last 6 rows of data? 
 ```{r}
 tail(gayguides, 6)
-X    ID           title               description streetaddress       type
-60693 60693 PR351       Boccachio            (Natives only)               Bars/Clubs
-60694 60694 PR366       Boccachio            (Natives only)               Bars/Clubs
-60695 60695 PR377       Boccachio            (Natives only)               Bars/Clubs
-60696 60696 GU002   Mi Elena Club (Inquire locally) (Agana)          <NA> Bars/Clubs
-60697 60697 GU015 Star Cafe & Bar Downtown, opp. Agana Loop          <NA> Bars/Clubs
-60698 60698 GU019 Star Cafe & Bar Downtown, opp. Agana Loop          <NA> Bars/Clubs
-amenityfeatures
-60693                                                                                     (G),(*)
-60694                                                                                         (G)
-60695                                                                                         (L)
-60696                                                         (M) - Mixed Crowds - Some Straights
-60697 (M) - Mixed Crowds - Some Straights,(YC) - Young and/or collegiate types,(*) - Very popular
-60698 (M) - Mixed Crowds - Some Straights,(YC) - Young and/or collegiate types,(*) - Very popular
-city state Year notes      lat       lon
-60693 Hato Ray    PR 1977       18.42258 -66.05096
-60694 Hato Ray    PR 1979       18.42258 -66.05096
-60695 Hato Ray    PR 1980       18.42258 -66.05096
-60696    Agana    GU 1980  <NA> 13.47628 144.75022
-60697    Agana    GU 1975  <NA> 13.47628 144.75022
-60698    Agana    GU 1974  <NA> 13.47628 144.75022
-status
-60693 Location could not be verified. General city or location coordinates used.
-60694 Location could not be verified. General city or location coordinates used.
-60695 Location could not be verified. General city or location coordinates used.
-60696 Location could not be verified. General city or location coordinates used.
-60697 Location could not be verified. General city or location coordinates used.
-60698 Location could not be verified. General city or location coordinates used.
+
 ```
 
 (@) Reflect on the previous two prompts. How did you figure these out? 
@@ -528,14 +470,13 @@ gayguides$title[500] extracts the 500th title from the title column in the gaygu
 (@) The Year variable contains the year (numeric) of each entry. Can you find the earliest year in this dataset? (Using code, don't cheat and use the documentation!)
 ```{r}
 min(gayguides$Year, na.rm = TRUE)
-[1] 1965
+
 ```
 
 
 (@) How about the latest year? 
 ```{r}
 max(gayguides$Year, na.rm = TRUE)
-[1] 1985
 ```
 
 
