@@ -133,13 +133,13 @@ these lines of code are performing logical comparisons in R, demonstrating how e
 
 4+9 != 13
 
+```
 
-
----
 
 ### Variables
 
-Values are great but they are made so much more powerful when combined with **Variables** which are a crucial building block of any programming language. Simply put, a variable stores a value. For example if I want x to equal 5 I can do that like this: 
+Values are great but they are made so much more powerful when combined with **Variables** which are a crucial building block of any programming language. Simply put, a variable stores a value. For example if I want x to equal 5 I can do that like this:
+  
 ```{r}
 x <- 5
 ```
@@ -168,13 +168,14 @@ Whatever you prefer, be consistent and your future self will thank you when your
 (@) You try, create a variable and assign it a number: 
 
 ```{r}
- my_number <- 10
+my_number <- 10
 ```
 
 (@) Can you assign a string to a variable?
 
 ```{r}
-> my_string <- "Hello, World!"
+my_string <- "Hello, World!"
+new_string <- "Practice"
 ```
 
 Once we've assigned a variable we can use that variable to run calculations just like we did with raw numbers.
@@ -196,28 +197,28 @@ My.Calculation <- (x + x)*10
 
 (@) You try. Assign a number to x and a number to y. Add those two numbers together.
 ```{r}
+y <- 6
 (x + y)
-[1] 11
+
 ```
 
 (@) Can you take `x` and `y` and multiply the result by 5? 
 ```{r}
-> (x + y)*5
-[1] 55
+(x + y)*5
 ```
 
 (@) Try creating two variables with names other than `x ` and `y`. Descriptive names tend to be more useful. Can you multiply the contents of your variables? 
 ```{r}
-> first_number * second_number
-[1] 50
+first_number <- 64 
+second_number <- 71
+first_number * second_number
 ```
 
 (@) Try creating two variables that store strings. Can you concatenate those two variables together? 
 ```{r}
-> first_word <- "Digital"
-> second_word <- "History"
-> paste(first_word, second_word, sep="-")
-[1] "Digital-History"
+first_word <- "Digital"
+second_word <- "History"
+paste(first_word, second_word, sep=" ")
 ```
 
 ### Vectors
@@ -226,7 +227,7 @@ If we have a lot of code and rely on just variables, we're going to have a lot o
 
 ```{r}
 myvalue <- "George Washington"
-myvalue
+
 ```
 In this instance "George Washington" is the only item in the variable myvalue. But we could add more. To do that we use the `c()` function which combines values into a vector. 
 ```{r}
