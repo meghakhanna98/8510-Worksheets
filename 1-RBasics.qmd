@@ -29,14 +29,15 @@ Numbers can be used to do arithmetic.
 (@) You try, multiple two numbers. 
 ```{r}
 5*55
-[1] 275
+3*895
 ```
 
 
 (@) Can you multiply two numbers and then divide by the result? 
 ```{r}
 275/5
-[1] 55
+8688/3
+35*86/3
 ```
 
 
@@ -48,7 +49,7 @@ The next type of value is a **string**. Strings are lines of text. Sometimes the
 (@) Try to create your own string.
 ```{r}
 "Medieval India"
-[1] "Medieval India"
+"My name is Megha"
 ```
 
 You can't add strings using `+` like you can numbers. But there is a function called `paste()` which concatenates character vectors into one. This function is _very_ useful and one you'll use a lot in a variety of circumstances. Here's what that looks like: 
@@ -60,12 +61,12 @@ paste("Hello", "Clemson Graduate Students")
 (@) Try it, add two strings together like the above example. 
 ```{r}
 paste("Coding", "is easy")
-[1] "Coding is easy"
+paste("My", "subject")
 ```
 
 (@) Can you explain what happened in 2-3 sentences? 
 ```{r}
-We created strings in R using quotation marks and concatenated them using the paste() function. Here, I added two strings together with paste.
+We created strings in R using quotation marks and concatenated them using the paste() function. Here, I added two strings together with paste function.
 ```
 
 The last type are **logical** values like `TRUE` and `FALSE`. (Note that these are all caps.)
@@ -81,6 +82,8 @@ FALSE
 These logical values are really useful for testing a statement and comparing values to each other. For example: 
 ```{r}
 3 < 4
+5 < 4
+6 == 6
 ```
 3 is indeed less than 4 so the return value is `TRUE`. Here are a few more examples:
 
@@ -107,32 +110,30 @@ Logical Operators allow you to combine or change the results of comparisons.
 (@) Explain, what does the code on each line above do? 
 ```{r}
 5 == 10
-[1] FALSE
 3 < 4
-[1] TRUE
+
 5 != 10
-[1] TRUE
+
 5 != 5
-[1] FALSE
+
 3 == 4 | 3
-[1] TRUE
+
 3 != 4 & 3 != 5
-[1] TRUE
+
 these lines of code are performing logical comparisons in R, demonstrating how equality and inequality operators work and how logical OR is interpreted when used with numeric values.
 ```
 
 (@) Create your own comparison. 
 ```{r}
 2==2
-[1] TRUE
-3 != 3
-[1] FALSE
-3 * 2 == 6
-[1] TRUE
-4+9 != 13
-[1] FALSE
 
-```
+3 != 3
+
+3 * 2 == 6
+
+4+9 != 13
+
+
 
 ---
 

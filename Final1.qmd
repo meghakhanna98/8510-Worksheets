@@ -1,0 +1,64 @@
+
+```{r}
+
+if (!require("wordVectors", quietly = TRUE)) {
+  if (!require("devtools", quietly = TRUE)) {
+    install.packages("devtools", dependencies = TRUE)
+  }
+  devtools::install_github("bmschmidt/wordVectors")
+}
+if (!require("lubridate", quietly = TRUE)) {
+  install.packages("lubridate", dependencies = TRUE)
+}
+
+
+#1 Loading necessary libraries
+library(wordVectors)
+library(magrittr)
+library(dplyr)
+library(readr)
+library(stringr)
+library(tm)
+library(ggplot2)
+library(plotly)
+library(wordcloud)
+library(RColorBrewer)
+
+#2 Seting working directory for the data location
+setwd("/Users/meghakhanna/Dropbox/Workshops/TestCorpus")
+
+#3 Loading and preprocessing the dataset t make it tidy
+casebook_final_2 <- read_csv("~/Downloads/casebook/casebook final 2.csv", show_col_types = FALSE) %>%
+  na.omit() %>%
+  mutate(cleaned_text = tolower(News.Reports),
+         cleaned_text = str_replace_all(cleaned_text, "[[:punct:]]", " "),
+         cleaned_text = str_replace_all(cleaned_text, "[[:digit:]]", " "),
+         cleaned_text = str_replace_all(cleaned_text, "\\s+", " "),
+         cleaned_text = removeWords(cleaned_text, stopwords("en")),
+         cleaned_text = ifelse(str_count(cleaned_text, "\\S+") > 3, cleaned_text, NA_real_)) %>%
+  filter(!is.na(cleaned_text))
+
+#4 Extracting and transforming date features i.e, the date
+casebook_final_2 <- casebook_final_2 %>%
+  mutate(Date = ymd(Full.Date),
+         Year = year(Date),
+         Month = month(Date, label = TRUE),
+         Day = day(Date))
+
+#5 Text data path for Word2Vec
+model_path <- "news_reports_vectors.bin"
+text_data_path <- "news_reports_tokenized.txt"
+
+#6 Training Word2Vec model
+if (!file.exists(model_path)) {
+  writeLines(unlist(strsplit(casebook_final_2$cleaned_text, "\\s+")), con = text_data_path)
+  model <- train_word2vec(text_data_path, model_path, vectors = 150, threads = 8, window = 12, iter = 5)
+} else {
+  model <- read.vectors(model_path)
+}
+
+
+jack_texts <- clean_text %>% filter(str_detect(cleaned_text, "jack the ripper|jack|murdеrer|villain|madman|mystery|killer|ripper|assassin|butcher"))
+victim_texts <- clean_text %>% filter(str_detect(cleaned_text, "victim|sex worker|prostitute|deceased|body|woman|women|lady|ladies|alone|public woman|public|public women|dead woman|corpse|girl|she|her|ill repute"))
+```
+

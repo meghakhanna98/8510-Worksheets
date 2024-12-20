@@ -1,0 +1,205 @@
+
+```{r}
+if (!require(wordVectors)) {
+  if (!require(devtools)) {
+    install.packages("devtools")
+  }
+  devtools::install_github("bmschmidt/wordVectors")
+}
+
+
+library(wordVectors)
+library(magrittr)
+library(dplyr)
+
+setwd("/Users/meghakhanna/Dropbox/Workshops/TestCorpus")
+
+library(readr)
+library(dplyr)
+library(stringr)  
+library(tm) 
+library(ggplot2)
+```
+
+```{r}
+
+library(readr)
+library(dplyr)
+library(stringr)  
+library(tm)       
+library(syuzhet)  
+
+
+casebook_final_2 <- read_csv("~/Downloads/casebook/casebook final 2.csv", show_col_types = FALSE) %>%
+  na.omit()
+
+View(casebook_final_2)
+
+clean_text <- casebook_final_2 %>%
+  mutate(cleaned_text = tolower(News.Reports)) 
+  mutate(cleaned_text = str_replace_all(cleaned_text, "[[:punct:]]", " ")) %>%  
+  mutate(cleaned_text = str_replace_all(cleaned_text, "[[:digit:]]", " ")) %>%  
+  mutate(cleaned_text = str_replace_all(cleaned_text, "\\s+", " ")) %>%  
+  mutate(cleaned_text = removeWords(cleaned_text, stopwords("en"))) %>%  
+  filter(str_count(cleaned_text, "\\S+") > 3) %>% 
+   head(clean_text)
+    
+clean_text <- clean_text %>%
+  mutate(Country = case_when(
+    str_detect(cleaned_text, "\\bu s\\b|\\busa\\b") ~ "United States",
+    str_detect(cleaned_text, "\\bbritain\\b|\\bu k\\b|\\buk\\london\\b") ~ "United Kingdom",
+    str_detect(cleaned_text, "\\bmexico\\b") ~ "Mexico",
+    str_detect(cleaned_text, "\\bnew zealand\\b") ~ "New Zealand",
+    str_detect(cleaned_text, "\\bjamaica\\b") ~ "Jamaica",
+    str_detect(cleaned_text, "\\bcanada\\b") ~ "Canada",
+    TRUE ~ "Other"  # Default value if none of the above matches
+  ))
+print(clean_text)
+
+```
+
+```{r}
+
+if (!require(lubridate)) {
+    install.packages("lubridate")
+}
+library(lubridate)
+library(dplyr)
+
+casebook_final <- clean_text %>%
+  mutate(
+    Date = ymd(Full.Date), 
+    Year = year(Date),
+    Month = month(Date),
+    Day = day(Date)
+  )
+
+head(casebook_final)
+
+
+```
+
+
+```{r}
+library(wordVectors)
+
+
+model_path <- "news_reports_vectors.bin"
+text_data_path <- "news_reports_tokenized.txt"
+
+if (!file.exists(model_path)) {
+
+  writeLines(unlist(strsplit(clean_text$cleaned_text, "\\s+")), con = text_data_path)
+
+  
+  model <- train_word2vec(
+    text_data_path,
+    model_path,
+    vectors = 150, threads = 8, window = 12, iter = 5, negative_samples = 0
+  )
+} else {
+
+  model <- read.vectors(model_path) 
+}
+
+jack_texts <- clean_text %>% filter(str_detect(cleaned_text, "jack the ripper|jack|murdеrer|villain|madman|mystery|killer|ripper|assassin|butcher"))
+victim_texts <- clean_text %>% filter(str_detect(cleaned_text, "victim|sex worker|prostitute|deceased|body|woman|women|lady|ladies|alone|public woman|public|public women|dead woman|corpse|girl|she|her|ill repute"))
+```
+
+
+```{r}
+jack_sentiment <- jack_texts %>% mutate(sentiment = get_sentiment(cleaned_text, method = "syuzhet"))
+victim_sentiment <- victim_texts %>% mutate(sentiment = get_sentiment(cleaned_text, method = "syuzhet"))
+
+print(jack_sentiment$sentiment)
+print(victim_sentiment$sentiment)
+```
+
+```{r}
+library(dplyr)
+library(syuzhet)
+
+jack_texts <- clean_text %>%
+  filter(str_detect(cleaned_text, "jack the ripper|jack|murdеrer|villain|madman|mystery|killer|ripper|assassin|butcher")) %>%
+  mutate(sentiment = get_sentiment(cleaned_text, method = "syuzhet"))
+
+victim_texts <- clean_text %>%
+  filter(str_detect(cleaned_text, "victim|sex worker|prostitute|deceased|body|woman|women|lady|ladies|alone|public woman|public|public women|dead woman|corpse|girl|she|her|ill repute")) %>%
+  mutate(sentiment = get_sentiment(cleaned_text, method = "syuzhet"))
+
+head(jack_texts)
+head(victim_texts)
+
+combined_sentiments <- rbind(
+  jack_texts %>% mutate(category = "Jack the Ripper"),
+  victim_texts %>% mutate(category = "Victims")
+)
+print(head(combined_sentiments))
+str(combined_sentiments)
+
+```
+
+```{r}
+library(wordcloud)
+library(tm)
+
+jack_words <- unlist(strsplit(paste(jack_texts$cleaned_text, collapse = " "), " "))
+victim_words <- unlist(strsplit(paste(victim_texts$cleaned_text, collapse = " "), " "))
+
+# Create word clouds
+par(mfrow = c(1, 2))
+wordcloud(words = jack_words, max.words = 100, scale = c(3, 0.5), colors = brewer.pal(8, "Dark2"))
+wordcloud(words = victim_words, max.words = 100, scale = c(3, 0.5), colors = brewer.pal(8, "Pastel1"))
+title("Word Cloud for Jack the Ripper Texts")
+title("Word Cloud for Victim Texts")
+
+library(plotly)
+
+p <- ggplot(combined_sentiments, aes(x = sentiment, fill = category)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("Jack the Ripper" = "red", "Victims" = "blue")) +
+  ggtitle("Interactive Density Plot of Sentiment Scores") +
+  xlab("Sentiment Score") +
+  ylab("Density")
+
+ggplotly(p)
+
+```
+
+
+```{r}
+library(dplyr)
+library(syuzhet)
+
+if (!"sentiment" %in% colnames(casebook_final)) {
+    casebook_final <- casebook_final %>%
+      mutate(sentiment = ifelse(!is.na(cleaned_text), get_sentiment(cleaned_text, method = "syuzhet"), NA))
+}
+
+head(casebook_final$sentiment)
+
+monthly_data <- casebook_final %>%
+  group_by(Year, Month) %>%
+  summarise(
+    Articles_Count = n(),
+    Average_Sentiment = mean(sentiment, na.rm = TRUE)
+  )
+
+print(monthly_data)
+
+
+```
+```{r}
+library(ggplot2)
+
+# Plot the average sentiment over time
+ggplot(monthly_data, aes(x = as.Date(paste(Year, Month, "01", sep = "-")), y = Average_Sentiment)) +
+  geom_line() +
+  labs(title = "Average Sentiment of Articles Over Time",
+       x = "Time",
+       y = "Average Sentiment") +
+  theme_minimal()
+
+```
+
+
