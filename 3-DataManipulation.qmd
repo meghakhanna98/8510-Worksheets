@@ -45,7 +45,7 @@ locations <- select(gayguides, city, state)
 
 (@) What did you do to save the data to a new data frame? Why? 
 
-> As studied earlier, I firstly loaded the dplyr library, which is a part of the tidyverse packages in R.. Then I used the 'select()' function to choose the city and state columns from the gayguides dataframe. Then, I assigned the result to a new dataframe called locations.
+> As studied earlier, I firstly loaded the dplyr library, which is a part of the tidyverse packages in R. Then I used the 'select()' function to choose the city and state columns from the gayguides dataframe. Then, I assigned the result to a new dataframe called locations.
 
 (@) Can you use `select()` to grab all the columns of `gayguides` EXCEPT for the city and state? Hint: You might want to read the documentation for this function. 
 ```{r}
@@ -97,7 +97,7 @@ head(greenville_sc)
 ```{r}
 library(dplyr)
 locations_1975_to_1980 <- gayguides %>%
-  filter(Year >= 1975 & Year <= 1980)
+  filter(Year >= 1975 | Year <= 1980)
 head(locations_1975_to_1980)
 ```
 
@@ -118,6 +118,11 @@ locations_1975_not_ny_sf <- subset(gayguides, Year == 1975)
 locations_1975_not_ny_sf <- subset(gayguides, state != "NY")
 locations_1975_not_ny_sf <- subset(gayguides, city != "San Francisco")
 head(locations_1975_not_ny_sf)
+```
+```{r}
+new_locations <- gayguides %>%
+  filter(city == "Greenville", Year == '1980')
+
 ```
 
 (@) The amenity features column in gay guides contains a comma separated list of categorizations. (G), for example, stands for girls. However, this language changed over time and women's locations eventually are described as (L). What if we want to filter by any entry that has (G) OR (L) in the amenity feature column?  This is a bit more complicated because the entries are a comma separated list and (G) or (L) is often paired with other categorizations. How might you _search the dataframe for entries that match_ (G) or (L)?
@@ -188,6 +193,16 @@ state_with_largest_population_1850 <- statepopulations %>%
 head(state_with_largest_population_1850)
 ```
 
+```{r}
+library(DigitalMethodsData)
+data("statepopulations")
+library(dplyr)
+largestpop1850 <- statepopulations %>%
+  #arrange(desc(X1850)) 
+  select(STATE, X1850) %>%
+  arrange(desc(X1850))
+head(largestpop1850)
+```
 ### Group_by() and Summarize()
 
 Arrange is useful for finding the highest and lowest values, but it returns those values for the entire dataset. `group_by()`, in contrast, takes an existing tbl and converts it into a grouped tbl where operations are performed "by group". Lets look at what that means in practice: 

@@ -65,6 +65,7 @@ We can assign logical values to each value in a vector and use those to subset t
 x[c(TRUE, FALSE, TRUE, TRUE, FALSE)]
 ```
 
+
 We can also subset to get values that match a particular criteria. Below, each item in the vector is tested against this proposition and it returns the values that are `TRUE`.
 ```{r}
 x[x > 7]
@@ -270,7 +271,7 @@ if (x > 90) {
 ```{r}
 current_enrollment <- 28
 
-if (current_enrollment >= 30) {
+if (current_enrollment > 30) {
    print("The enrollment cap of 30 has been met.")
 } else {
   print("There are still spaces available in the class.")
@@ -385,11 +386,11 @@ If we break the equaton, it starts with i which equals to 1 and can run through 
 library(DigitalMethodsData)
 data("statepopulations")
 for (i in 1:nrow(statepopulations)) {
-    population <- STATE$X1800[i]
-    if (population < 200000 | population > 250000) {
+    population <- statepopulations$X1800[i]  
+    if (is.na(population) || population < 200000 || population > 250000) {  
         next
     }
-    print(statepopulation$STATE[i])
+    print(statepopulations$STATE[i]) 
 }
 ```
 
@@ -403,10 +404,8 @@ for (i in 1:nrow(gayguides)) {
    }
 }
 ```
-
-
-```{r}
 `while` is another useful tool for writing loops. While will run a loop _while_ a condition is true. Once that condition is not true, it exits. For example: 
+
 ```{r}
 i <- 1
 while (i < 6) {
@@ -430,6 +429,7 @@ To be more specific, a **function** is a set of code that performs a task and re
 A function in R takes any arguments that may be necessary to perform the actions contained within the function, performs those functions, and then returns any result in the console. 
 
 For example, the below function takes a number as an input, multiplies it by 5 and then returns the result. 
+
 ```{r}
 myfunction <- function(y){
   myvalue <- y * 5
