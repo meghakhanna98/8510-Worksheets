@@ -252,7 +252,7 @@ average_locations_per_city <- gayguides %>%
    filter(state == "SC" & Year >= 1970 & Year <= 1975) %>%
   group_by(city) %>%
   summarize(total_locations = n(), .groups = 'drop') %>%
-  summarise(average_locations = mean(total_locations))
+  summarize(average_locations = mean(total_locations))
 print(average_locations_per_city)
 
 ```
@@ -262,7 +262,7 @@ print(average_locations_per_city)
 southernstates <- c("AL", "AR", "FL", "GA", "KY", "LA", "MD", "MS", "NC", "SC", "TN", "TX", "VI", "WV")
 
 locations_southern_states_1975 <- gayguides %>%
-  filter(state %in% southernstates & Year == 1975) %>%
+  filter(state %in% southernstates | Year == 1975) %>%
   summarise(total_locations = n())
 
 print(locations_southern_states_1975)
@@ -299,14 +299,13 @@ library(DigitalMethodsData)
 data("gayguides")
 regions <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/censusregions.csv")
 
-joined_data <- inner_join(gayguides, regions, by = state)
-
+joined_data <- inner_join(gayguides, regions, by = c('state'= 'State'))
 locations_by_region_1980 <- joined_data %>%
   filter(Year == 1980) %>%
-  group_by(Region) %>%
+  group_by(Division) %>%
   summarise(total_locations = n())
 
-mountain_region_1980 <- filter(locations_by_region_1980, Region == "Mountain")
+mountain_region_1980 <- filter(locations_by_region_1980, Division == "Mountain")
 print(mountain_region_1980)
   
 ```

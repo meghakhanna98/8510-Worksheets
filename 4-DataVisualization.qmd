@@ -135,7 +135,7 @@ A barplot (or barchart) is one of the most common types of graphic. Whereas a hi
 
 ```{r}
 sc.rec <- recreational.data %>% group_by(state) %>% summarize(state.expenditures = sum(total_expenditures))
-ggplot(sc.rec, aes(x = state, y = state.expenditures )) +
+ggplot(sc.rec, aes(x = state, y = state.expenditures )) + 
   geom_col()
 ```
 
@@ -150,7 +150,7 @@ filtered_data <- gayguides %>%
   summarize(locations = n())
 
 ggplot(filtered_data, aes(x = state, y = locations)) +
-  geom_col(fill = "skyblue") +
+  geom_col(fill = "skyblue") +  
   labs(x = "State", y = "Number of Locations", title = "Number of Locations in 1980")
 
 ```
@@ -171,6 +171,20 @@ ggplot(religious.institutions.data, aes(x = state, y = churches)) +
   labs(x = "State", y = "Number of Religious Institutons", title = "Number of Religious Institutions per State") 
 ```
 
+```{r}
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+data("gayguides")
+rel.ins.gayguides <- gayguides %>%
+  filter(type == "Religious Institution") %>%  
+  group_by(state) %>% 
+  summarise(religious_institutions = n())  
+ggplot(rel.ins.gayguides, aes(x = state, y = religious_institutions)) +  
+  geom_col()
+  
+```
 (@) Formulate a question based on a dataset of your choice. That question should be something that would be appropriately answered by a bar chart. What is the question you want to explore?
 
 < What is the average age of Boston women voters within each occupational sector?
@@ -180,7 +194,7 @@ ggplot(religious.institutions.data, aes(x = state, y = churches)) +
 library(DigitalMethodsData)
 library(ggplot2)
 library(dplyr)
-data("BostonWomenVoters")
+data("BostonWomenVoters")  #loading all the libraries
 occupation_age <- BostonWomenVoters %>%
   group_by(Occupation) %>%
   summarize(average_age = mean(Age, na.rm = TRUE))
@@ -221,13 +235,31 @@ ggplot(religious_institutions_over_time, aes(x = Year, y = number_of_institution
   theme_minimal()
 ```
 
+```{r}
+library(DigitalMethodsData)
+library(ggplot2)
+library(dplyr)
+library(stringr)
+
+data("gayguides")
+rel.ins.over.time <- gayguides %>%
+  filter(type == "Religious Institution") %>%  
+  group_by(Year) %>% 
+  summarise(religious_institutions = n())  
+ggplot(rel.ins.over.time, aes(x = Year, y = religious_institutions)) +  
+  geom_line() +
+  geom_point()
+  labs(x = "Year", y = "Number of Religious Institutions", title = "Number of Religious Institutions Over Time") +
+  theme_minimal()
+
+```
 (@) In the gayguides data, danger or risk is indicated in several different ways. Sometimes it through the use of an amenity categorization of (HOT) or (AYOR) which meant that these locations were frequented by police and should be used at your own risk. Other times, locations were listed as "inquire locally" in either the description or address field. There are many reasons a location would have requested to have been listed this way. Many times, it was due to harassment and the location deemed it too dangerous to publicly list its location. Can you create a subset of the gay guides data about risk and then use it to create a chart about the usage of these indicators over time? 
 ```{r}
 library(DigitalMethodsData)
 library(ggplot2)
 library(dplyr)
 library(stringr)
-data("gayguides")
+data("gayguides") #loading all the libraries
 risk_indicators_subset <- gayguides %>%
   filter(str_detect(amenityfeatures, "HOT|AYOR") | 
            str_detect(description, "inquire locally") | 
@@ -276,7 +308,7 @@ library(ggplot2)
 library(dplyr)
 library(stringr)
 data("gayguides") 
-selected_types <- c("Bar", "Restaurant", "Hotel", "Club", "Sauna") 
+selected_types <- c("Bars/Clubs", "Restaurant", "Hotel", "Cruising Areas", "Baths") 
 type_counts <- gayguides %>%
   filter(Year >= 1965, Year <= 1980, type %in% selected_types) %>%
   group_by(type, Year) %>%
@@ -297,6 +329,7 @@ rec.workers <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMetho
 library(tidyr)
 library(dplyr)
 rec.workers <- read.csv("https://raw.githubusercontent.com/regan008/DigitalMethodsData/main/raw/RecreationData-Wide.csv")
+
 long_rec_workers <- rec.workers %>%
   pivot_longer(cols = starts_with("X"), names_to = "Year", values_to = "Count") %>%
   mutate(Year = as.numeric(sub("X", "", Year)))
@@ -309,6 +342,7 @@ average_workers_by_status <- long_rec_workers %>%
 average_workers_by_status
 
 ```
+
 
 ### Practice
 In the slots below use the datasets for class (or a dataset of your choice) to create a plot. The plot you create in each of these three examples should try to make some kind of historical observation. After you finish creating the plot, write a short paragraph that explains what kind of observation you were trying to make and what your plot demonstrates. 
@@ -335,23 +369,32 @@ ggplot(establishments_over_time, aes(x = Year, y = number_of_establishments)) +
 ```{r}
 library(DigitalMethodsData)
 library(ggplot2)
-data(recreational.data)
-ggplot(recreational.data, aes(x =population, y = city)) +
-  geom_col(color = "lightgreen", fill = "yellow") +
- labs(x = "Population", y = "City", title = "Population Trend by City") +
-  theme_minimal() 
+data <- data.frame(recreational.data)
+library(ggplot2)
+
+data <- recreational.data
+
+# Create a ggplot bar chart
+plot <- ggplot(data, aes(x = city, y = type_of_worker)) +  
+  geom_col(color = "lightgreen", fill = "yellow") +  
+  labs(x = "City", y = "Population", title = "Population Trend by City") +  
+  theme_minimal()  
+
+# Print the plot
+print(plot)
+
 ```
 
 (@) Plot 2 explanation: 
-> Through this bar chart I intended a design to compare the population sizes of various cities. Each bar represents a different city, and the height of the bar indicates the population size of that city. Though, it looks a bit chaotic, but it helped me identify the population trend.
+> Through this bar chart I intended a design to compare the workers' type sizes of various cities. Each bar represents a different city, and the height of the bar indicates the type of workers size of that city. Though, it looks a bit chaotic, but it helped me identify the population trend.
 
 (@) Plot 3. For this one, try a different kind of plot. [Check out a useful gallery here.](https://github.com/regan008/DigitalMethodsData/blob/main/raw/RecreationData-Wide.csv)
 (For this week, avoid choosing a map. We'll talk more about maps and geographic data over the next two weeks.)
 ```{r}
 library(DigitalMethodsData)
 library(ggplot2)
-data(recreational.data)
-ggplot(recreational.data, aes(x = state, y = total_expenditures)) +
+data(rec)
+ggplot(rec, aes(x = state, y = total_expenditures)) +
   geom_boxplot() +
   labs(y = "Expenditures", title = "Distribution of Recreational Expenditures by State")
 ```
