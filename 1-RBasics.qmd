@@ -257,9 +257,9 @@ my.numbers * 2
 ```{r}
 my.numbers <- c(2, 4, 6, 8)
 my.numbers * 2
-[1]  4  8 12 16
-the operation would multiply each element of the vector i.e, 2, 4, 6, 8 by 2, resulting in a new vector with doubled values: 4, 8, 12, and 16.
 ```
+the operation would multiply each element of the vector i.e, 2, 4, 6, 8 by 2, resulting in a new vector with doubled values: 4, 8, 12, and 16.
+
 
 Lets try something slightly different. 
 ```{r}

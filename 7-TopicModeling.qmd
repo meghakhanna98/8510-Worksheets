@@ -339,31 +339,41 @@ plot_top_terms(topics.r, "Top Terms Across Topics in Reception Data")
 ```
 
 ```{r}
-
 library(readtext)
 library(dplyr)
 library(topicmodels)
 library(tidytext)
 library(tm)
 library(ggplot2)
+library(stringr)
+```
 
 
+```{r}
 data_dir <- paste(getwd(), "/txt", sep = "")
 bb <- readtext(paste0(data_dir, "/*.txt"))
 bb.metadata <- read.csv("https://raw.githubusercontent.com/dseefeldt/IndianaNewspapers/main/metadata.csv")
+```
 
+
+```{r}
 bb_combined <- full_join(bb, bb.metadata, by = c("doc_id" = "Filename"))
 
 custom_stop_words <- c("buffalo", "cody", "bill", "wild", "west")
+```
 
 
+```{r}
 bb_tidy <- bb_combined %>%
   unnest_tokens(word, text) %>%
   anti_join(stop_words) %>%
-  filter(!word %in% custom_stop_words) %>%  
-  filter(!str_detect(word, '\\d'))  %>% 
+  filter(!word %in% custom_stop_words) %>%
+  filter(!str_detect(word, '\\d')) %>%
   filter(!grepl("[[:digit:]]", word))
+```
 
+
+```{r}
 dtm_bb <- bb_tidy %>%
   count(doc_id, word) %>%
   cast_dtm(document = doc_id, term = word, value = n)
@@ -382,13 +392,16 @@ top_terms <- topics.bb %>%
   arrange(topic, -beta)
 
 print(top_terms)
+```
+
+
+```{r}
 library(wordcloud)
-library(RColorBrewer)
+
 
 topic1 <- top_terms %>% filter(topic == 2)
 
-wordcloud(words = topic1$term, freq = topic1$beta, max.words = 100, random.order = FALSE,
-          rot.per = 0.3, colors = brewer.pal(6, "Dark2"))
+wordcloud(words = topic1$term, freq = topic1$beta, max.words = 100, random.order = FALSE)
 
 
 
